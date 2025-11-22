@@ -1,0 +1,576 @@
+import puppeteer from 'puppeteer';
+import path from 'path';
+import fs from 'fs/promises';
+import { Invoice, Order, Settings, User } from '../models';
+import logger from '../config/logger';
+import { IInvoice, IOrder, ISettings } from '../types';
+
+/**
+ * Get or create PDF directory
+ */
+const ensurePdfDir = async (subDir: string = ''): Promise<string> => {
+  const dir = path.join('uploads', 'pdfs', subDir);
+  await fs.mkdir(dir, { recursive: true });
+  return dir;
+};
+
+/**
+ * Number to Arabic words (simplified - for amount in words)
+ */
+const numberToArabicWords = (num: number): string => {
+  // Simplified implementation - in production use a proper library
+  const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
+  const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+  const hundreds = ['', 'مئة', 'مئتان', 'ثلاثمئة', 'أربعمئة', 'خمسمئة', 'ستمئة', 'سبعمئة', 'ثمانمئة', 'تسعمئة'];
+
+  if (num === 0) return 'صفر';
+  if (num < 10) return ones[num];
+  if (num < 100) {
+    const ten = Math.floor(num / 10);
+    const one = num % 10;
+    return `${ones[one]} و ${tens[ten]}`.trim();
+  }
+
+  return num.toString(); // Fallback for larger numbers
+};
+
+/**
+ * Format number for Arabic locale
+ */
+const formatArabicNumber = (num: number, currency: string = 'TND'): string => {
+  return new Intl.NumberFormat('ar-TN', {
+    style: 'currency',
+    currency
+  }).format(num);
+};
+
+/**
+ * Generate invoice HTML template
+ */
+const generateInvoiceHTML = (
+  invoice: IInvoice & { order: IOrder; client?: any; commercial?: any },
+  settings: ISettings
+): string => {
+  const { order, client, commercial } = invoice;
+
+  return `
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>فاتورة ${invoice.invoiceNumber}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Cairo', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: #333;
+      direction: rtl;
+    }
+
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 40px;
+      border-bottom: 3px solid #D4AF37;
+      padding-bottom: 20px;
+    }
+
+    .company-info {
+      flex: 1;
+    }
+
+    .company-name {
+      font-size: 28px;
+      font-weight: 700;
+      color: #D4AF37;
+      margin-bottom: 10px;
+    }
+
+    .company-details {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .logo {
+      max-width: 150px;
+      max-height: 80px;
+    }
+
+    .invoice-title {
+      text-align: center;
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 30px;
+      color: #0E0E0E;
+    }
+
+    .invoice-meta {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 30px;
+      margin-bottom: 30px;
+    }
+
+    .meta-section {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 8px;
+    }
+
+    .meta-title {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 10px;
+      color: #D4AF37;
+    }
+
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      font-size: 12px;
+    }
+
+    .meta-label {
+      font-weight: 600;
+      color: #666;
+    }
+
+    .table-container {
+      margin-bottom: 30px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th {
+      background: #0E0E0E;
+      color: white;
+      padding: 12px;
+      text-align: right;
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #e0e0e0;
+      font-size: 13px;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    .totals-section {
+      margin-right: auto;
+      margin-left: 0;
+      max-width: 400px;
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .total-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .total-row.grand-total {
+      font-size: 18px;
+      font-weight: 700;
+      color: #D4AF37;
+      padding-top: 10px;
+      border-top: 2px solid #D4AF37;
+      margin-top: 10px;
+    }
+
+    .payment-section {
+      margin-top: 30px;
+      padding: 20px;
+      background: #e8f5e9;
+      border-radius: 8px;
+    }
+
+    .payment-title {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 15px;
+      color: #2e7d32;
+    }
+
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .footer {
+      margin-top: 50px;
+      padding-top: 20px;
+      border-top: 2px solid #D4AF37;
+      text-align: center;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .amount-in-words {
+      margin-top: 20px;
+      padding: 15px;
+      background: #fff3cd;
+      border-radius: 8px;
+      text-align: center;
+      font-weight: 600;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-paid {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .status-unpaid {
+      background: #f8d7da;
+      color: #721c24;
+    }
+  </style>
+</head>
+<body>
+  <div class="invoice-container">
+    <!-- Header -->
+    <div class="header">
+      <div class="company-info">
+        <div class="company-name">${settings.companyName.ar}</div>
+        <div class="company-details">
+          ${settings.address?.ar || ''}<br>
+          ${settings.phone ? `هاتف: ${settings.phone}` : ''}<br>
+          ${settings.email ? `بريد إلكتروني: ${settings.email}` : ''}<br>
+          ${settings.taxNumber ? `الرقم الجبائي: ${settings.taxNumber}` : ''}
+        </div>
+      </div>
+      ${settings.logoPath ? `<img src="file://${path.resolve(settings.logoPath)}" class="logo" alt="Logo">` : ''}
+    </div>
+
+    <!-- Invoice Title -->
+    <div class="invoice-title">
+      فاتورة رقم ${invoice.invoiceNumber}
+      <span class="status-badge ${invoice.isPaid ? 'status-paid' : 'status-unpaid'}">
+        ${invoice.isPaid ? 'مدفوعة' : 'غير مدفوعة'}
+      </span>
+    </div>
+
+    <!-- Meta Information -->
+    <div class="invoice-meta">
+      <div class="meta-section">
+        <div class="meta-title">معلومات الفاتورة</div>
+        <div class="meta-row">
+          <span class="meta-label">رقم الفاتورة:</span>
+          <span>${invoice.invoiceNumber}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">رقم الطلب:</span>
+          <span>${order.orderNumber}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">تاريخ الإصدار:</span>
+          <span>${new Date(invoice.createdAt).toLocaleDateString('ar-TN')}</span>
+        </div>
+        ${invoice.dueDate ? `
+        <div class="meta-row">
+          <span class="meta-label">تاريخ الاستحقاق:</span>
+          <span>${new Date(invoice.dueDate).toLocaleDateString('ar-TN')}</span>
+        </div>
+        ` : ''}
+      </div>
+
+      <div class="meta-section">
+        <div class="meta-title">معلومات العميل</div>
+        ${client ? `
+        <div class="meta-row">
+          <span class="meta-label">الاسم:</span>
+          <span>${client.name.first} ${client.name.last || ''}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta-label">البريد الإلكتروني:</span>
+          <span>${client.email}</span>
+        </div>
+        ` : '<div>عميل عام</div>'}
+        ${commercial ? `
+        <div class="meta-row">
+          <span class="meta-label">المندوب التجاري:</span>
+          <span>${commercial.name.first} ${commercial.name.last || ''}</span>
+        </div>
+        ` : ''}
+      </div>
+    </div>
+
+    <!-- Items Table -->
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th style="width: 40%">المنتج</th>
+            <th style="width: 15%">الكمية</th>
+            <th style="width: 20%">سعر الوحدة</th>
+            <th style="width: 25%">المجموع</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${order.lines.map(line => `
+            <tr>
+              <td>
+                <strong>${line.productTitle.ar}</strong>
+                ${line.variantId ? `<br><small>نوع: ${line.variantId}</small>` : ''}
+                ${line.componentSelections ? '<br><small>منتج قابل للتخصيص</small>' : ''}
+              </td>
+              <td>${line.qty}</td>
+              <td>${formatArabicNumber(line.unitPrice, settings.currency)}</td>
+              <td><strong>${formatArabicNumber(line.lineTotal, settings.currency)}</strong></td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Totals -->
+    <div class="totals-section">
+      <div class="total-row">
+        <span>المجموع الفرعي:</span>
+        <span>${formatArabicNumber(order.subtotal, settings.currency)}</span>
+      </div>
+      ${order.remise > 0 ? `
+      <div class="total-row">
+        <span>التخفيض:</span>
+        <span>-${formatArabicNumber(order.remise, settings.currency)}</span>
+      </div>
+      ` : ''}
+      <div class="total-row">
+        <span>الضريبة (${settings.taxPercent}%):</span>
+        <span>${formatArabicNumber(order.tax, settings.currency)}</span>
+      </div>
+      <div class="total-row grand-total">
+        <span>المجموع الكلي:</span>
+        <span>${formatArabicNumber(order.total, settings.currency)}</span>
+      </div>
+    </div>
+
+    <!-- Amount in Words -->
+    <div class="amount-in-words">
+      المبلغ الإجمالي: ${order.total.toFixed(2)} ${settings.currency}
+    </div>
+
+    <!-- Payments -->
+    ${invoice.payments.length > 0 ? `
+    <div class="payment-section">
+      <div class="payment-title">سجل المدفوعات</div>
+      ${invoice.payments.map(payment => `
+        <div class="payment-row">
+          <span>${new Date(payment.date).toLocaleDateString('ar-TN')} - ${payment.method}</span>
+          <span><strong>${formatArabicNumber(payment.amount, settings.currency)}</strong></span>
+        </div>
+        ${payment.note ? `<div style="font-size: 11px; color: #666; margin-bottom: 5px;">${payment.note}</div>` : ''}
+      `).join('')}
+      <div class="payment-row" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #ccc;">
+        <span>المبلغ المتبقي:</span>
+        <span><strong>${formatArabicNumber(invoice.amountDue - invoice.amountPaid, settings.currency)}</strong></span>
+      </div>
+    </div>
+    ` : ''}
+
+    <!-- Footer -->
+    <div class="footer">
+      ${settings.invoiceFooter?.ar || 'شكراً لثقتكم بنا'}
+      <br><br>
+      <small>تم إنشاء هذه الفاتورة إلكترونياً بواسطة نظام إدارة Les Rois des Bois</small>
+    </div>
+  </div>
+</body>
+</html>
+  `;
+};
+
+/**
+ * Generate invoice PDF
+ */
+export const generateInvoicePDF = async (invoiceId: string): Promise<string> => {
+  try {
+    const invoice = await Invoice.findById(invoiceId)
+      .populate('orderId')
+      .populate('clientId')
+      .populate('commercialId');
+
+    if (!invoice) {
+      throw new Error('Invoice not found');
+    }
+
+    const order = invoice.orderId as unknown as IOrder;
+    const settings = await Settings.findOne() || {} as ISettings;
+
+    const html = generateInvoiceHTML(invoice as any, settings);
+
+    // Launch Puppeteer
+    const browser = await puppeteer.launch({
+      headless: process.env.PUPPETEER_HEADLESS !== 'false',
+      executablePath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    // Generate PDF
+    const pdfDir = await ensurePdfDir('invoices');
+    const pdfPath = path.join(pdfDir, `${invoice.invoiceNumber}.pdf`);
+
+    await page.pdf({
+      path: pdfPath,
+      format: 'A4',
+      printBackground: true,
+      margin: {
+        top: '20mm',
+        right: '15mm',
+        bottom: '20mm',
+        left: '15mm'
+      }
+    });
+
+    await browser.close();
+
+    // Update invoice with PDF path
+    invoice.pdfPath = pdfPath;
+    await invoice.save();
+
+    logger.info(`Invoice PDF generated: ${pdfPath}`);
+
+    return pdfPath;
+  } catch (error) {
+    logger.error('PDF generation error:', error);
+    throw new Error('Failed to generate invoice PDF');
+  }
+};
+
+/**
+ * Generate production sheet PDF
+ */
+export const generateProductionSheet = async (orderId: string): Promise<string> => {
+  try {
+    const order = await Order.findById(orderId).populate({
+      path: 'lines.productId',
+      populate: {
+        path: 'specialConfig.components.subProductIds'
+      }
+    });
+
+    if (!order) {
+      throw new Error('Order not found');
+    }
+
+    // Build production sheet HTML (simplified version)
+    const html = `
+<!DOCTYPE html>
+<html dir="rtl" lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <title>ورقة الإنتاج - ${order.orderNumber}</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap');
+    body { font-family: 'Cairo', sans-serif; direction: rtl; padding: 40px; }
+    h1 { color: #D4AF37; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: right; }
+    th { background: #0E0E0E; color: white; }
+  </style>
+</head>
+<body>
+  <h1>ورقة إنتاج - طلب رقم ${order.orderNumber}</h1>
+  <p><strong>التاريخ:</strong> ${new Date(order.createdAt).toLocaleDateString('ar-TN')}</p>
+  <p><strong>الحالة:</strong> ${order.status}</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>المنتج</th>
+        <th>الكمية</th>
+        <th>المكونات المطلوبة</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${order.lines.map(line => `
+        <tr>
+          <td>${line.productTitle.ar}</td>
+          <td>${line.qty}</td>
+          <td>
+            ${line.componentSelections
+              ? Object.entries(line.componentSelections).map(([key, value]) => `${key}: ${value}`).join('<br>')
+              : 'منتج قياسي'
+            }
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>
+    `;
+
+    const browser = await puppeteer.launch({
+      headless: process.env.PUPPETEER_HEADLESS !== 'false',
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+
+    const page = await browser.newPage();
+    await page.setContent(html, { waitUntil: 'networkidle0' });
+
+    const pdfDir = await ensurePdfDir('production');
+    const pdfPath = path.join(pdfDir, `production-${order.orderNumber}.pdf`);
+
+    await page.pdf({
+      path: pdfPath,
+      format: 'A4',
+      printBackground: true
+    });
+
+    await browser.close();
+
+    // Update order with production sheet path
+    order.productionSheetPath = pdfPath;
+    await order.save();
+
+    logger.info(`Production sheet generated: ${pdfPath}`);
+
+    return pdfPath;
+  } catch (error) {
+    logger.error('Production sheet generation error:', error);
+    throw new Error('Failed to generate production sheet');
+  }
+};
