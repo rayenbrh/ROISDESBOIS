@@ -43,7 +43,7 @@ const ProductsList: React.FC = () => {
           />
           <MultiSelect
             label="الفئات"
-            options={categories?.map((c) => ({ value: c._id, label: c.name })) || []}
+            options={(categories || []).map((c) => ({ value: c._id, label: c.name.ar || c.name }))}
             value={filters.categories || []}
             onChange={(value) => setFilters({ ...filters, categories: value })}
           />
@@ -67,24 +67,24 @@ const ProductsList: React.FC = () => {
           <div className="text-center py-12">جاري التحميل...</div>
         ) : (
           <div className={viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4' : 'space-y-4'}>
-            {data?.data.map((product) => (
+            {(data?.data || []).map((product) => (
               <Link key={product._id} to={`/admin/products/${product._id}`}>
                 <Card className="hover:shadow-lg transition-shadow">
-                  {product.images[0] && (
+                  {product.images?.[0]?.path && (
                     <img
-                      src={product.images[0]}
-                      alt={product.title}
+                      src={product.images[0].path}
+                      alt={product.title?.ar || product.title}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
                   )}
                   <div className="p-4">
                     <h3 className="font-semibold text-gray-900 dark:text-gray-100 truncate">
-                      {product.title}
+                      {product.title?.ar || product.title}
                     </h3>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">{product.SKU}</p>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">{product.sku || product.SKU}</p>
                     <div className="mt-2 flex items-center justify-between">
                       <span className="text-lg font-bold text-[#D4AF37]">
-                        {formatCurrency(product.retailPrice)}
+                        {formatCurrency(product.price?.retail || product.retailPrice)}
                       </span>
                       <Badge variant={product.stock > 10 ? 'success' : 'warning'}>
                         {product.stock} متوفر
