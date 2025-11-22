@@ -29,7 +29,7 @@ export const useOrder = (id: string) => {
   return useQuery({
     queryKey: ['order', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Order>>(`/orders/${id}`);
+      const response = await apiClient.get<ApiResponse<Order>>(`/admin/orders/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -42,7 +42,7 @@ export const useCreateOrder = () => {
 
   return useMutation({
     mutationFn: async (data: Partial<Order>) => {
-      const response = await apiClient.post<ApiResponse<Order>>('/orders', data);
+      const response = await apiClient.post<ApiResponse<Order>>('/admin/orders', data);
       return response.data.data;
     },
     onSuccess: () => {
@@ -57,7 +57,7 @@ export const useUpdateOrder = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<Order> }) => {
-      const response = await apiClient.put<ApiResponse<Order>>(`/orders/${id}`, data);
+      const response = await apiClient.put<ApiResponse<Order>>(`/admin/orders/${id}`, data);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -73,7 +73,7 @@ export const useUpdateOrderStatus = () => {
 
   return useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      const response = await apiClient.put<ApiResponse<Order>>(`/orders/${id}/status`, { status });
+      const response = await apiClient.put<ApiResponse<Order>>(`/admin/orders/${id}/status`, { status });
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -89,7 +89,7 @@ export const useDeleteOrder = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/orders/${id}`);
+      await apiClient.delete(`/admin/orders/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
@@ -104,7 +104,7 @@ export const useGenerateInvoice = () => {
   return useMutation({
     mutationFn: async (orderId: string) => {
       const response = await apiClient.post<ApiResponse<{ invoiceId: string }>>(
-        `/orders/${orderId}/generate-invoice`
+        `/admin/orders/${orderId}/generate-invoice`
       );
       return response.data.data;
     },
@@ -119,7 +119,7 @@ export const useGenerateProductionSheet = () => {
   return useMutation({
     mutationFn: async (orderId: string) => {
       const response = await apiClient.post<ApiResponse<{ pdfUrl: string }>>(
-        `/orders/${orderId}/production-sheet`
+        `/admin/orders/${orderId}/production-sheet`
       );
       return response.data.data;
     },

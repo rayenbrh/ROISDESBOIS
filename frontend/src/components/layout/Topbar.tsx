@@ -18,7 +18,7 @@ import { getInitials } from '../../utils/format';
 
 const Topbar: React.FC = () => {
   const navigate = useNavigate();
-  const { theme, toggleTheme, toggleSidebar, sidebarCollapsed } = useUIStore();
+  const { theme, toggleTheme, toggleSidebar, toggleSidebarOpen, sidebarCollapsed } = useUIStore();
   const { user } = useAuthStore();
   const logoutMutation = useLogout();
 
@@ -29,14 +29,15 @@ const Topbar: React.FC = () => {
 
   return (
     <header className={cn(
-      'fixed top-0 left-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-20 transition-all',
-      sidebarCollapsed ? 'right-20' : 'right-64'
+      'fixed top-0 left-0 right-0 h-16 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 z-20 transition-all',
+      // Desktop: margin for sidebar
+      sidebarCollapsed ? 'lg:right-20' : 'lg:right-64'
     )}>
-      <div className="h-full px-4 flex items-center justify-between">
+      <div className="h-full px-4 flex items-center justify-between gap-2">
         {/* Left side */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 md:gap-4">
           {/* User Menu */}
-          <Menu as="div" className="relative">
+          <Menu as="div" className="relative hidden sm:block">
             <Menu.Button className="flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg px-3 py-2 transition-colors">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
@@ -92,7 +93,7 @@ const Topbar: React.FC = () => {
           </Menu>
 
           {/* Notifications */}
-          <button className="relative p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          <button className="relative p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hidden md:block">
             <BellIcon className="h-6 w-6" />
             <span className="absolute top-1 left-1 h-2 w-2 bg-red-500 rounded-full"></span>
           </button>
@@ -103,15 +104,15 @@ const Topbar: React.FC = () => {
             className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
           >
             {theme === 'light' ? (
-              <MoonIcon className="h-6 w-6" />
+              <MoonIcon className="h-5 w-5 md:h-6 md:w-6" />
             ) : (
-              <SunIcon className="h-6 w-6" />
+              <SunIcon className="h-5 w-5 md:h-6 md:w-6" />
             )}
           </button>
         </div>
 
         {/* Center - Search */}
-        <div className="flex-1 max-w-lg mx-4">
+        <div className="flex-1 max-w-lg mx-2 md:mx-4 hidden sm:block">
           <div className="relative">
             <MagnifyingGlassIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -123,12 +124,23 @@ const Topbar: React.FC = () => {
         </div>
 
         {/* Right side - Sidebar toggle */}
-        <button
-          onClick={toggleSidebar}
-          className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
-        >
-          <Bars3Icon className="h-6 w-6" />
-        </button>
+        <div className="flex items-center gap-2">
+          {/* Mobile menu toggle */}
+          <button
+            onClick={toggleSidebarOpen}
+            className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors lg:hidden"
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
+
+          {/* Desktop sidebar toggle */}
+          <button
+            onClick={toggleSidebar}
+            className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors hidden lg:block"
+          >
+            <Bars3Icon className="h-6 w-6" />
+          </button>
+        </div>
       </div>
     </header>
   );

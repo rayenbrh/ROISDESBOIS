@@ -25,7 +25,7 @@ export const useSubProduct = (id: string) => {
   return useQuery({
     queryKey: ['subProduct', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<SubProduct>>(`/subproducts/${id}`);
+      const response = await apiClient.get<ApiResponse<SubProduct>>(`/admin/subproducts/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -49,7 +49,7 @@ export const useCreateSubProduct = () => {
         images: imageUrls,
       };
 
-      const response = await apiClient.post<ApiResponse<SubProduct>>('/subproducts', payload);
+      const response = await apiClient.post<ApiResponse<SubProduct>>('/admin/subproducts', payload);
       return response.data.data;
     },
     onSuccess: () => {
@@ -76,7 +76,7 @@ export const useUpdateSubProduct = () => {
         images: imageUrls || data.images,
       };
 
-      const response = await apiClient.put<ApiResponse<SubProduct>>(`/subproducts/${id}`, payload);
+      const response = await apiClient.put<ApiResponse<SubProduct>>(`/admin/subproducts/${id}`, payload);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -92,7 +92,7 @@ export const useDeleteSubProduct = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/subproducts/${id}`);
+      await apiClient.delete(`/admin/subproducts/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['subProducts'] });
@@ -106,7 +106,7 @@ export const useUpdateSubProductStock = () => {
 
   return useMutation({
     mutationFn: async ({ id, stock }: { id: string; stock: number }) => {
-      const response = await apiClient.put<ApiResponse<SubProduct>>(`/subproducts/${id}`, { stock });
+      const response = await apiClient.put<ApiResponse<SubProduct>>(`/admin/subproducts/${id}`, { stock });
       return response.data.data;
     },
     onSuccess: (_, variables) => {

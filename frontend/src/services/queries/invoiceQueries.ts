@@ -28,7 +28,7 @@ export const useInvoice = (id: string) => {
   return useQuery({
     queryKey: ['invoice', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Invoice>>(`/invoices/${id}`);
+      const response = await apiClient.get<ApiResponse<Invoice>>(`/admin/invoices/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -42,7 +42,7 @@ export const useAddPayment = () => {
   return useMutation({
     mutationFn: async ({ invoiceId, payment }: { invoiceId: string; payment: PaymentFormData }) => {
       const response = await apiClient.post<ApiResponse<Invoice>>(
-        `/invoices/${invoiceId}/payments`,
+        `/admin/invoices/${invoiceId}/payments`,
         payment
       );
       return response.data.data;
@@ -61,7 +61,7 @@ export const useMarkInvoicePaid = () => {
   return useMutation({
     mutationFn: async (invoiceId: string) => {
       const response = await apiClient.put<ApiResponse<Invoice>>(
-        `/invoices/${invoiceId}/mark-paid`
+        `/admin/invoices/${invoiceId}/mark-paid`
       );
       return response.data.data;
     },
@@ -76,7 +76,7 @@ export const useMarkInvoicePaid = () => {
 export const useDownloadInvoice = () => {
   return useMutation({
     mutationFn: async (invoiceId: string) => {
-      const response = await apiClient.get(`/invoices/${invoiceId}/pdf`, {
+      const response = await apiClient.get(`/admin/invoices/${invoiceId}/pdf`, {
         responseType: 'blob',
       });
       return response.data;
@@ -90,7 +90,7 @@ export const useDeleteInvoice = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/invoices/${id}`);
+      await apiClient.delete(`/admin/invoices/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invoices'] });

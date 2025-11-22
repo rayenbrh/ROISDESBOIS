@@ -7,7 +7,7 @@ export const useCategories = () => {
   return useQuery({
     queryKey: ['categories'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Category[]>>('/categories');
+      const response = await apiClient.get<ApiResponse<Category[]>>('/admin/categories');
       return response.data.data;
     },
   });
@@ -18,7 +18,7 @@ export const useCategory = (id: string) => {
   return useQuery({
     queryKey: ['category', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Category>>(`/categories/${id}`);
+      const response = await apiClient.get<ApiResponse<Category>>(`/admin/categories/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -45,7 +45,7 @@ export const useCreateCategory = () => {
         icon: iconUrl,
       };
 
-      const response = await apiClient.post<ApiResponse<Category>>('/categories', payload);
+      const response = await apiClient.post<ApiResponse<Category>>('/admin/categories', payload);
       return response.data.data;
     },
     onSuccess: () => {
@@ -77,7 +77,7 @@ export const useUpdateCategory = () => {
         payload.name = { ar: data.name };
       }
 
-      const response = await apiClient.put<ApiResponse<Category>>(`/categories/${id}`, payload);
+      const response = await apiClient.put<ApiResponse<Category>>(`/admin/categories/${id}`, payload);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -93,7 +93,7 @@ export const useDeleteCategory = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/categories/${id}`);
+      await apiClient.delete(`/admin/categories/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['categories'] });
