@@ -12,7 +12,7 @@ export const useSalesStats = (startDate?: string, endDate?: string) => {
       if (endDate) params.append('endDate', endDate);
 
       const response = await apiClient.get<ApiResponse<SalesStats>>(
-        `/analytics/sales?${params.toString()}`
+        `/admin/analytics/sales?${params.toString()}`
       );
       return response.data.data;
     },
@@ -30,7 +30,7 @@ export const useTopProducts = (limit = 10, startDate?: string, endDate?: string)
       if (endDate) params.append('endDate', endDate);
 
       const response = await apiClient.get<ApiResponse<TopProduct[]>>(
-        `/analytics/top-products?${params.toString()}`
+        `/admin/analytics/top-products?${params.toString()}`
       );
       return response.data.data;
     },
@@ -48,7 +48,7 @@ export const useTopClients = (limit = 10, startDate?: string, endDate?: string) 
       if (endDate) params.append('endDate', endDate);
 
       const response = await apiClient.get<ApiResponse<TopClient[]>>(
-        `/analytics/top-clients?${params.toString()}`
+        `/admin/analytics/top-clients?${params.toString()}`
       );
       return response.data.data;
     },
@@ -65,7 +65,7 @@ export const useCategoryStats = (startDate?: string, endDate?: string) => {
       if (endDate) params.append('endDate', endDate);
 
       const response = await apiClient.get<ApiResponse<CategoryStats[]>>(
-        `/analytics/categories?${params.toString()}`
+        `/admin/analytics/categories?${params.toString()}`
       );
       return response.data.data;
     },

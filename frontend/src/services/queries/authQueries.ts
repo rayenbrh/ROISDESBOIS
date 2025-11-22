@@ -9,15 +9,16 @@ export const useLogin = () => {
 
   return useMutation({
     mutationFn: async (credentials: LoginForm) => {
-      const response = await apiClient.post<ApiResponse<{ user: User; token: string; refreshToken: string }>>(
+      const response = await apiClient.post<ApiResponse<{ user: User; accessToken: string }>>(
         '/auth/login',
         credentials
       );
       return response.data.data;
     },
     onSuccess: (data) => {
-      login(data.user, data.token);
-      localStorage.setItem('refreshToken', data.refreshToken);
+      // Backend returns accessToken, not token
+      // Backend also sets refreshToken as httpOnly cookie
+      login(data.user, data.accessToken);
     },
   });
 };
