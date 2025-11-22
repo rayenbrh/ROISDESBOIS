@@ -39,9 +39,9 @@ export const useCreateCategory = () => {
       }
 
       const payload = {
-        name: data.name,
+        name: { ar: data.name },
         slug: data.slug,
-        parentCategory: data.parentCategory,
+        parentId: data.parentCategory,
         icon: iconUrl,
       };
 
@@ -67,10 +67,15 @@ export const useUpdateCategory = () => {
         iconUrl = await uploadFile(data.icon, 'image');
       }
 
-      const payload = {
-        ...data,
+      const payload: any = {
+        slug: data.slug,
+        parentId: data.parentCategory,
         icon: iconUrl || data.icon,
       };
+
+      if (data.name) {
+        payload.name = { ar: data.name };
+      }
 
       const response = await apiClient.put<ApiResponse<Category>>(`/categories/${id}`, payload);
       return response.data.data;

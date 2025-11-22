@@ -97,22 +97,33 @@ export const getErrorMessage = (error: unknown): string => {
 // Helper function to upload files
 export const uploadFile = async (file: File, type: 'image' | 'document' = 'image'): Promise<string> => {
   const formData = new FormData();
-  formData.append('file', file);
-  formData.append('type', type);
+  formData.append('image', file);
 
-  const response = await apiClient.post('/upload', formData, {
+  const response = await apiClient.post('/admin/uploads/image', formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
     },
   });
 
-  return response.data.data.url;
+  // Backend returns { path, thumbPath, width, height }
+  return response.data.data.path;
 };
 
 // Helper function to upload multiple files
 export const uploadFiles = async (files: File[], type: 'image' | 'document' = 'image'): Promise<string[]> => {
-  const uploadPromises = files.map(file => uploadFile(file, type));
-  return Promise.all(uploadPromises);
+  const formData = new FormData();
+  files.forEach(file => {
+    formData.append('images', file);
+  });
+
+  const response = await apiClient.post('/admin/uploads/images', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  // Backend returns array of { path, thumbPath, width, height }
+  return response.data.data.map((img: any) => img.path);
 };
 
 export default apiClient;
