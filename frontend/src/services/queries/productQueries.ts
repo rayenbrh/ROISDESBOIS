@@ -203,7 +203,7 @@ export const useLowStockProducts = () => {
   return useQuery({
     queryKey: ['lowStockProducts'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Product[]>>('/admin/products/analytics/low-stock');
+      const response = await apiClient.get<ApiResponse<Product[]>>('/admin/analytics/low-stock');
       return response.data.data;
     },
   });

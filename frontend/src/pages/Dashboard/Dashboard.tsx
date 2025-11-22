@@ -142,7 +142,7 @@ const Dashboard: React.FC = () => {
           }
         >
           <div className="space-y-4">
-            {ordersData?.data.slice(0, 5).map((order) => (
+            {(ordersData?.data || []).slice(0, 5).map((order) => (
               <div
                 key={order._id}
                 className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
@@ -185,7 +185,7 @@ const Dashboard: React.FC = () => {
           }
         >
           <div className="space-y-4">
-            {lowStockProducts?.slice(0, 5).map((product) => (
+            {(lowStockProducts || []).slice(0, 5).map((product) => (
               <div
                 key={product._id}
                 className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-900 rounded-lg"
