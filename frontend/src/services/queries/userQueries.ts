@@ -27,7 +27,7 @@ export const useUser = (id: string) => {
   return useQuery({
     queryKey: ['user', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<User>>(`/users/${id}`);
+      const response = await apiClient.get<ApiResponse<User>>(`/admin/users/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -40,7 +40,7 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: async (data: UserFormData) => {
-      const response = await apiClient.post<ApiResponse<User>>('/users', data);
+      const response = await apiClient.post<ApiResponse<User>>('/admin/users', data);
       return response.data.data;
     },
     onSuccess: () => {
@@ -55,7 +55,7 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<UserFormData> }) => {
-      const response = await apiClient.put<ApiResponse<User>>(`/users/${id}`, data);
+      const response = await apiClient.put<ApiResponse<User>>(`/admin/users/${id}`, data);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -71,7 +71,7 @@ export const useDeleteUser = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/users/${id}`);
+      await apiClient.delete(`/admin/users/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
@@ -84,7 +84,7 @@ export const useCommercials = () => {
   return useQuery({
     queryKey: ['commercials'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<User[]>>('/users?role=commercial');
+      const response = await apiClient.get<ApiResponse<User[]>>('/admin/users?role=commercial');
       return response.data.data;
     },
   });
@@ -95,7 +95,7 @@ export const useClients = () => {
   return useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<User[]>>('/users?role=client');
+      const response = await apiClient.get<ApiResponse<User[]>>('/admin/users?role=client');
       return response.data.data;
     },
   });

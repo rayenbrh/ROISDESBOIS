@@ -7,7 +7,7 @@ export const useSettings = () => {
   return useQuery({
     queryKey: ['settings'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Settings>>('/settings');
+      const response = await apiClient.get<ApiResponse<Settings>>('/admin/settings');
       return response.data.data;
     },
   });
@@ -31,7 +31,7 @@ export const useUpdateSettings = () => {
         logo: logoUrl || data.logo,
       };
 
-      const response = await apiClient.put<ApiResponse<Settings>>('/settings', payload);
+      const response = await apiClient.put<ApiResponse<Settings>>('/admin/settings', payload);
       return response.data.data;
     },
     onSuccess: () => {

@@ -30,13 +30,18 @@ const navItems = [
 
 const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { sidebarCollapsed } = useUIStore();
+  const { sidebarCollapsed, sidebarOpen, toggleSidebarOpen } = useUIStore();
 
   return (
     <aside
       className={cn(
         'fixed right-0 top-0 bottom-0 bg-white dark:bg-gray-800 border-l border-gray-200 dark:border-gray-700 transition-all duration-300 z-30',
-        sidebarCollapsed ? 'w-20' : 'w-64'
+        // Desktop: always visible with width based on collapsed state
+        'lg:translate-x-0',
+        sidebarCollapsed ? 'lg:w-20' : 'lg:w-64',
+        // Mobile: overlay sidebar, hidden by default
+        'w-64 lg:shadow-none shadow-2xl',
+        sidebarOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
       )}
     >
       {/* Logo */}
@@ -60,17 +65,23 @@ const Sidebar: React.FC = () => {
             <Link
               key={item.path}
               to={item.path}
+              onClick={() => {
+                // Close mobile sidebar when clicking a link
+                if (window.innerWidth < 1024) {
+                  toggleSidebarOpen();
+                }
+              }}
               className={cn(
                 'flex items-center gap-3 px-4 py-3 rounded-lg transition-all',
                 isActive
                   ? 'bg-[#D4AF37] bg-opacity-10 text-[#D4AF37] font-medium'
                   : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700',
-                sidebarCollapsed && 'justify-center'
+                sidebarCollapsed && 'lg:justify-center'
               )}
               title={sidebarCollapsed ? item.name : undefined}
             >
               <Icon className="h-6 w-6 flex-shrink-0" />
-              {!sidebarCollapsed && <span>{item.name}</span>}
+              <span className={cn(sidebarCollapsed && 'lg:hidden')}>{item.name}</span>
             </Link>
           );
         })}

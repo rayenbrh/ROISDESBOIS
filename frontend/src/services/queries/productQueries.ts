@@ -18,7 +18,7 @@ export const useProducts = (filters?: ProductFilters, page = 1, limit = 20) => {
       params.append('limit', String(limit));
 
       const response = await apiClient.get<ApiResponse<PaginatedResponse<Product>>>(
-        `/products?${params.toString()}`
+        `/admin/products?${params.toString()}`
       );
       return response.data.data;
     },
@@ -30,7 +30,7 @@ export const useProduct = (id: string) => {
   return useQuery({
     queryKey: ['product', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Product>>(`/products/${id}`);
+      const response = await apiClient.get<ApiResponse<Product>>(`/admin/products/${id}`);
       return response.data.data;
     },
     enabled: !!id,
@@ -76,7 +76,7 @@ export const useCreateProduct = () => {
         isActive: data.isActive,
       };
 
-      const response = await apiClient.post<ApiResponse<Product>>('/products', payload);
+      const response = await apiClient.post<ApiResponse<Product>>('/admin/products', payload);
       return response.data.data;
     },
     onSuccess: () => {
@@ -142,7 +142,7 @@ export const useUpdateProduct = () => {
       }
       if (data.isActive !== undefined) payload.isActive = data.isActive;
 
-      const response = await apiClient.put<ApiResponse<Product>>(`/products/${id}`, payload);
+      const response = await apiClient.put<ApiResponse<Product>>(`/admin/products/${id}`, payload);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
@@ -158,7 +158,7 @@ export const useDeleteProduct = () => {
 
   return useMutation({
     mutationFn: async (id: string) => {
-      await apiClient.delete(`/products/${id}`);
+      await apiClient.delete(`/admin/products/${id}`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['products'] });
@@ -171,7 +171,7 @@ export const useGenerateComposite = () => {
   return useMutation({
     mutationFn: async (data: { productId: string; combination: Record<string, string> }) => {
       const response = await apiClient.post<ApiResponse<{ jobId: string }>>(
-        `/products/${data.productId}/generate-composite`,
+        `/admin/products/${data.productId}/generate-composite`,
         { combination: data.combination }
       );
       return response.data.data;
@@ -184,7 +184,7 @@ export const useCompositeJobStatus = (jobId: string, enabled = false) => {
   return useQuery({
     queryKey: ['compositeJob', jobId],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<CompositeJobStatus>>(`/jobs/${jobId}`);
+      const response = await apiClient.get<ApiResponse<CompositeJobStatus>>(`/admin/jobs/${jobId}`);
       return response.data.data;
     },
     enabled: enabled && !!jobId,
@@ -203,7 +203,7 @@ export const useLowStockProducts = () => {
   return useQuery({
     queryKey: ['lowStockProducts'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<Product[]>>('/products/analytics/low-stock');
+      const response = await apiClient.get<ApiResponse<Product[]>>('/admin/products/analytics/low-stock');
       return response.data.data;
     },
   });
