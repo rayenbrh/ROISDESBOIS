@@ -324,7 +324,7 @@ exports.getLowStock = getLowStock;
  * Get inventory statistics
  * GET /api/admin/analytics/inventory
  */
-const getInventoryStats = async (req, res, next) => {
+const getInventoryStats = async (_req, res, next) => {
     try {
         const productStats = await models_1.Product.aggregate([
             {
@@ -441,7 +441,7 @@ exports.getPaymentStats = getPaymentStats;
  * Get dashboard summary
  * GET /api/admin/analytics/dashboard
  */
-const getDashboardSummary = async (req, res, next) => {
+const getDashboardSummary = async (_req, res, next) => {
     try {
         // Get counts
         const [totalOrders, totalProducts, totalClients, totalInvoices, unpaidInvoices] = await Promise.all([

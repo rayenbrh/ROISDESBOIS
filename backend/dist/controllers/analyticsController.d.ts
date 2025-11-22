@@ -33,7 +33,7 @@ export declare const getLowStock: (req: Request, res: Response, next: NextFuncti
  * Get inventory statistics
  * GET /api/admin/analytics/inventory
  */
-export declare const getInventoryStats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getInventoryStats: (_req: Request, res: Response, next: NextFunction) => Promise<void>;
 /**
  * Get payment statistics
  * GET /api/admin/analytics/payments
@@ -43,5 +43,5 @@ export declare const getPaymentStats: (req: Request, res: Response, next: NextFu
  * Get dashboard summary
  * GET /api/admin/analytics/dashboard
  */
-export declare const getDashboardSummary: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getDashboardSummary: (_req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=analyticsController.d.ts.map

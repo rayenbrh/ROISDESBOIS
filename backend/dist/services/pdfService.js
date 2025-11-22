@@ -18,25 +18,6 @@ const ensurePdfDir = async (subDir = '') => {
     return dir;
 };
 /**
- * Number to Arabic words (simplified - for amount in words)
- */
-const numberToArabicWords = (num) => {
-    // Simplified implementation - in production use a proper library
-    const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
-    const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-    const hundreds = ['', 'مئة', 'مئتان', 'ثلاثمئة', 'أربعمئة', 'خمسمئة', 'ستمئة', 'سبعمئة', 'ثمانمئة', 'تسعمئة'];
-    if (num === 0)
-        return 'صفر';
-    if (num < 10)
-        return ones[num];
-    if (num < 100) {
-        const ten = Math.floor(num / 10);
-        const one = num % 10;
-        return `${ones[one]} و ${tens[ten]}`.trim();
-    }
-    return num.toString(); // Fallback for larger numbers
-};
-/**
  * Format number for Arabic locale
  */
 const formatArabicNumber = (num, currency = 'TND') => {
@@ -427,7 +408,6 @@ const generateInvoicePDF = async (invoiceId) => {
         if (!invoice) {
             throw new Error('Invoice not found');
         }
-        const order = invoice.orderId;
         const settings = await models_1.Settings.findOne() || {};
         const html = generateInvoiceHTML(invoice, settings);
         // Launch Puppeteer

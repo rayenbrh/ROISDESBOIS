@@ -57,12 +57,11 @@ const getCategories = async (req, res, next) => {
             const buildTree = (parentId = null) => {
                 return categories
                     .filter(cat => {
-                    if (parentId === null) {
-                        return !cat.parentId;
-                    }
-                    return cat.parentId?.toString() === parentId.toString();
+                    const catParentId = cat.parentId ? cat.parentId.toString() : null;
+                    const compareId = parentId ? parentId.toString() : null;
+                    return catParentId === compareId;
                 })
-                    .map(cat => ({
+                    .map((cat) => ({
                     ...cat.toObject(),
                     children: buildTree(cat._id)
                 }));

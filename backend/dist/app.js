@@ -107,7 +107,7 @@ const swaggerOptions = {
 const swaggerSpec = (0, swagger_jsdoc_1.default)(swaggerOptions);
 app.use('/api/docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.default.setup(swaggerSpec));
 // Health check
-app.get('/health', (req, res) => {
+app.get('/health', (_req, res) => {
     res.json({
         status: 'healthy',
         timestamp: new Date().toISOString(),

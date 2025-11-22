@@ -98,12 +98,6 @@ const getOrdersQuerySchema = validate_2.paginationSchema.keys({
     search: joi_1.default.string()
 });
 /**
- * @route   GET /api/admin/orders/stats
- * @desc    Get order statistics
- * @access  Private (Admin or Commercial)
- */
-router.get('/stats', auth_1.adminOrCommercial, orderController.getOrderStats);
-/**
  * @route   GET /api/admin/orders
  * @desc    Get all orders with pagination
  * @access  Private (Admin or Commercial)

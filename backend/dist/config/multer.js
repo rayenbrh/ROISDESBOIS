@@ -25,7 +25,7 @@ const ensureUploadDirs = () => {
 ensureUploadDirs();
 // Storage configuration
 const storage = multer_1.default.diskStorage({
-    destination: (req, file, cb) => {
+    destination: (req, _file, cb) => {
         const uploadType = req.body.uploadType || 'temp';
         let uploadPath = 'uploads/temp';
         switch (uploadType) {
@@ -44,7 +44,7 @@ const storage = multer_1.default.diskStorage({
         }
         cb(null, uploadPath);
     },
-    filename: (req, file, cb) => {
+    filename: (_req, file, cb) => {
         const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
         const ext = path_1.default.extname(file.originalname);
         const name = path_1.default.basename(file.originalname, ext).replace(/\s+/g, '-');
@@ -52,7 +52,7 @@ const storage = multer_1.default.diskStorage({
     }
 });
 // File filter
-const fileFilter = (req, file, cb) => {
+const fileFilter = (_req, file, cb) => {
     const allowedMimes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
     if (allowedMimes.includes(file.mimetype)) {
         cb(null, true);

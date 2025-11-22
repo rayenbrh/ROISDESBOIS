@@ -43,6 +43,7 @@ const auditService_1 = require("../services/auditService");
 const pdfService_1 = require("../services/pdfService");
 const logger_1 = __importDefault(require("../config/logger"));
 const types_1 = require("../types");
+const mongoose_1 = require("mongoose");
 /**
  * Get all orders with pagination and filtering
  * GET /api/admin/orders
@@ -247,7 +248,7 @@ const changeOrderStatus = async (req, res, next) => {
         order.statusHistory = order.statusHistory || [];
         order.statusHistory.push({
             status,
-            changedBy: req.user?.userId,
+            changedBy: new mongoose_1.Types.ObjectId(req.user?.userId),
             changedAt: new Date(),
             note
         });
@@ -372,7 +373,7 @@ exports.deleteOrder = deleteOrder;
  * Get order statistics
  * GET /api/admin/orders/stats
  */
-const getOrderStats = async (req, res, next) => {
+const getOrderStats = async (_req, res, next) => {
     try {
         const stats = await models_1.Order.aggregate([
             {

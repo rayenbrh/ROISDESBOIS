@@ -40,13 +40,6 @@ const getInvoicesQuerySchema = paginationSchema.keys({
 });
 
 /**
- * @route   GET /api/admin/invoices/stats
- * @desc    Get invoice statistics
- * @access  Private (Admin or Commercial)
- */
-router.get('/stats', adminOrCommercial, invoiceController.getInvoiceStats);
-
-/**
  * @route   GET /api/admin/invoices
  * @desc    Get all invoices with pagination
  * @access  Private (Admin or Commercial)

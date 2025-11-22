@@ -14,7 +14,7 @@ const path_1 = __importDefault(require("path"));
  * Get settings
  * GET /api/admin/settings
  */
-const getSettings = async (req, res, next) => {
+const getSettings = async (_req, res, next) => {
     try {
         let settings = await models_1.Settings.findOne();
         // Create default settings if none exist

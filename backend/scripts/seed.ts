@@ -47,7 +47,7 @@ const seed = async (): Promise<void> => {
       isActive: true
     });
 
-    const store = await User.create({
+    await User.create({
       name: { first: 'فاطمة', last: 'بن علي' },
       email: 'store@roisdesbois.tn',
       passwordHash: 'Store123!',
@@ -297,7 +297,7 @@ const seed = async (): Promise<void> => {
     });
 
     // Special product: Configurable chair
-    const configurableChair = await Product.create({
+    await Product.create({
       title: { ar: 'كرسي قابل للتخصيص' },
       description: { ar: 'اختر تصميم ظهر الكرسي المفضل لديك' },
       sku: 'CHAIR-CUSTOM-001',
@@ -337,7 +337,7 @@ const seed = async (): Promise<void> => {
     // ========================================================================
     logger.info('📦 Creating sample orders...');
 
-    const order1 = await Order.create({
+    await Order.create({
       orderNumber: 'ROI-ORD-2024-00001',
       clientId: client._id,
       commercialId: commercial._id,
@@ -378,7 +378,7 @@ const seed = async (): Promise<void> => {
       ]
     });
 
-    const order2 = await Order.create({
+    await Order.create({
       orderNumber: 'ROI-ORD-2024-00002',
       clientId: client._id,
       commercialId: commercial._id,

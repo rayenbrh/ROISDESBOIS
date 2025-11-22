@@ -1,4 +1,5 @@
-declare const redisClient: any;
+import { createClient } from 'redis';
+declare let redisClient: ReturnType<typeof createClient> | null;
 export declare const connectRedis: () => Promise<void>;
 export declare const disconnectRedis: () => Promise<void>;
 export default redisClient;

@@ -11,9 +11,9 @@ export declare const validateQuery: (schema: Joi.ObjectSchema) => (req: Request,
 /**
  * Common validation schemas
  */
-export declare const objectIdSchema: any;
-export declare const paginationSchema: any;
-export declare const localizedStringSchema: any;
-export declare const emailSchema: any;
-export declare const passwordSchema: any;
+export declare const objectIdSchema: Joi.StringSchema<string>;
+export declare const paginationSchema: Joi.ObjectSchema<any>;
+export declare const localizedStringSchema: Joi.ObjectSchema<any>;
+export declare const emailSchema: Joi.StringSchema<string>;
+export declare const passwordSchema: Joi.StringSchema<string>;
 //# sourceMappingURL=validate.d.ts.map

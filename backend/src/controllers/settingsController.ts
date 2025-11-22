@@ -11,7 +11,7 @@ import path from 'path';
  * GET /api/admin/settings
  */
 export const getSettings = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

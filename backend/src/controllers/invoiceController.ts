@@ -4,6 +4,7 @@ import { sendSuccess, sendError, sendPaginated } from '../utils/apiResponse';
 import { logCreate, logUpdate, logPayment } from '../services/auditService';
 import { generateInvoicePDF } from '../services/pdfService';
 import logger from '../config/logger';
+import { Types } from 'mongoose';
 
 /**
  * Get all invoices with pagination and filtering
@@ -242,7 +243,7 @@ export const addPayment = async (
       amount,
       method,
       note,
-      recordedBy: req.user?.userId
+      recordedBy: req.user?.userId ? new Types.ObjectId(req.user.userId) : undefined
     });
 
     invoice.amountPaid += amount;
@@ -312,7 +313,7 @@ export const markAsPaid = async (
         amount: remainingAmount,
         method: method || 'cash',
         note: note || 'Full payment',
-        recordedBy: req.user?.userId
+        recordedBy: req.user?.userId ? new Types.ObjectId(req.user.userId) : undefined
       });
 
       invoice.amountPaid = invoice.amountDue;
@@ -442,7 +443,7 @@ export const deleteInvoice = async (
  * GET /api/admin/invoices/stats
  */
 export const getInvoiceStats = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

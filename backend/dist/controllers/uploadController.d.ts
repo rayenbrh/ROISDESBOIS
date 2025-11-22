@@ -18,7 +18,7 @@ export declare const deleteImageFile: (req: Request, res: Response, next: NextFu
  * Get upload statistics
  * GET /api/admin/uploads/stats
  */
-export declare const getUploadStats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getUploadStats: (_req: Request, res: Response, next: NextFunction) => Promise<void>;
 /**
  * Cleanup orphaned files (files not referenced in database)
  * POST /api/admin/uploads/cleanup

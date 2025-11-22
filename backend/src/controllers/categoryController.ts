@@ -23,15 +23,14 @@ export const getCategories = async (
       // Build tree structure
       const categories = await Category.find({}).sort({ order: 1, 'name.ar': 1 });
 
-      const buildTree = (parentId: any = null) => {
+      const buildTree = (parentId: any = null): any[] => {
         return categories
           .filter(cat => {
-            if (parentId === null) {
-              return !cat.parentId;
-            }
-            return cat.parentId?.toString() === parentId.toString();
+            const catParentId = cat.parentId ? cat.parentId.toString() : null;
+            const compareId = parentId ? parentId.toString() : null;
+            return catParentId === compareId;
           })
-          .map(cat => ({
+          .map((cat: any) => ({
             ...cat.toObject(),
             children: buildTree(cat._id)
           }));

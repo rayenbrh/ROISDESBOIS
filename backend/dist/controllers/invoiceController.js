@@ -9,6 +9,7 @@ const apiResponse_1 = require("../utils/apiResponse");
 const auditService_1 = require("../services/auditService");
 const pdfService_1 = require("../services/pdfService");
 const logger_1 = __importDefault(require("../config/logger"));
+const mongoose_1 = require("mongoose");
 /**
  * Get all invoices with pagination and filtering
  * GET /api/admin/invoices
@@ -200,7 +201,7 @@ const addPayment = async (req, res, next) => {
             amount,
             method,
             note,
-            recordedBy: req.user?.userId
+            recordedBy: req.user?.userId ? new mongoose_1.Types.ObjectId(req.user.userId) : undefined
         });
         invoice.amountPaid += amount;
         // Update paid status
@@ -248,7 +249,7 @@ const markAsPaid = async (req, res, next) => {
                 amount: remainingAmount,
                 method: method || 'cash',
                 note: note || 'Full payment',
-                recordedBy: req.user?.userId
+                recordedBy: req.user?.userId ? new mongoose_1.Types.ObjectId(req.user.userId) : undefined
             });
             invoice.amountPaid = invoice.amountDue;
         }
@@ -348,7 +349,7 @@ exports.deleteInvoice = deleteInvoice;
  * Get invoice statistics
  * GET /api/admin/invoices/stats
  */
-const getInvoiceStats = async (req, res, next) => {
+const getInvoiceStats = async (_req, res, next) => {
     try {
         const stats = await models_1.Invoice.aggregate([
             {
