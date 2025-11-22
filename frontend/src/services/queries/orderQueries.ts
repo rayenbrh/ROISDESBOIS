@@ -17,7 +17,7 @@ export const useOrders = (filters?: OrderFilters, page = 1, limit = 20) => {
       params.append('limit', String(limit));
 
       const response = await apiClient.get<ApiResponse<PaginatedResponse<Order>>>(
-        `/orders?${params.toString()}`
+        `/admin/orders?${params.toString()}`
       );
       return response.data.data;
     },
