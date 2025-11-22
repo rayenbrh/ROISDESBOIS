@@ -4,6 +4,8 @@ import { sendSuccess, sendError, sendPaginated } from '../utils/apiResponse';
 import { logCreate, logUpdate, logDelete } from '../services/auditService';
 import logger from '../config/logger';
 import { UserRole } from '../types';
+import { transformUser, transformUsers } from '../utils/userTransform';
+
 
 /**
  * Get all users with pagination and filtering
@@ -47,7 +49,7 @@ export const getUsers = async (
       User.countDocuments(filter)
     ]);
 
-    sendPaginated(res, users, page, limit, total);
+    sendPaginated(res, transformUsers(users), page, limit, total);
   } catch (error) {
     next(error);
   }
@@ -72,7 +74,7 @@ export const getUserById = async (
       return;
     }
 
-    sendSuccess(res, user);
+    sendSuccess(res, transformUser(user));
   } catch (error) {
     next(error);
   }
@@ -124,7 +126,7 @@ export const createUser = async (
     const userResponse = user.toObject();
     delete (userResponse as any).passwordHash;
 
-    sendSuccess(res, userResponse, 201);
+    sendSuccess(res, transformUser(userResponse), 201);
   } catch (error) {
     next(error);
   }
@@ -180,7 +182,7 @@ export const updateUser = async (
     const userResponse = user.toObject();
     delete (userResponse as any).passwordHash;
 
-    sendSuccess(res, userResponse);
+    sendSuccess(res, transformUser(userResponse));
   } catch (error) {
     next(error);
   }
@@ -300,7 +302,7 @@ export const assignCommercial = async (
 
     logger.info(`Commercial assigned to user: ${user.email} by ${req.user?.email}`);
 
-    sendSuccess(res, user);
+    sendSuccess(res, transformUser(user));
   } catch (error) {
     next(error);
   }
@@ -322,7 +324,7 @@ export const getUsersByRole = async (
       .select('-passwordHash')
       .sort({ 'name.first': 1 });
 
-    sendSuccess(res, users);
+sendSuccess(res, transformUsers(users));
   } catch (error) {
     next(error);
   }

@@ -4,6 +4,7 @@ import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from '.
 import { sendSuccess, sendError } from '../utils/apiResponse';
 import { logLogin, logLogout } from '../services/auditService';
 import logger from '../config/logger';
+import { transformUser } from '../utils/userTransform';
 
 /**
  * Login
@@ -61,14 +62,9 @@ export const login = async (
     logger.info(`User logged in: ${user.email}`);
 
     sendSuccess(res, {
-      accessToken,
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role
-      }
-    });
+    accessToken,
+    user: transformUser(user)
+  });
   } catch (error) {
     next(error);
   }
@@ -167,7 +163,8 @@ export const getCurrentUser = async (
       return;
     }
 
-    sendSuccess(res, user);
+    sendSuccess(res, transformUser(user));
+
   } catch (error) {
     next(error);
   }
