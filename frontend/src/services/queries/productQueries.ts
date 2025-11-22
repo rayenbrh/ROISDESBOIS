@@ -47,19 +47,32 @@ export const useCreateProduct = () => {
       const imageUrls = data.images.length > 0 ? await uploadFiles(data.images, 'image') : [];
 
       const payload = {
-        title: data.title,
-        description: data.description,
-        SKU: data.SKU,
-        retailPrice: data.retailPrice,
-        costPrice: data.costPrice,
-        bulkPrices: data.bulkPrices,
-        stock: data.stock,
-        stockPolicy: data.stockPolicy,
+        title: { ar: data.title },
+        description: { ar: data.description },
+        sku: data.SKU,
+        price: {
+          retail: data.retailPrice,
+          bulkPrices: data.bulkPrices.map(bp => ({
+            minQty: bp.minQty,
+            price: bp.price
+          }))
+        },
+        cost: data.costPrice,
+        stock: {
+          qty: data.stock,
+          policy: data.stockPolicy
+        },
         categories: data.categories,
-        images: imageUrls,
+        images: imageUrls.map(url => ({
+          path: url,
+          thumbPath: url,
+          alt: { ar: data.title }
+        })),
         isSpecial: data.isSpecial,
-        componentGroups: data.componentGroups,
-        combinationImages: data.combinationImages,
+        specialConfig: data.isSpecial && data.componentGroups ? {
+          mode: 'component_based',
+          componentGroups: data.componentGroups
+        } : undefined,
         isActive: data.isActive,
       };
 
@@ -85,10 +98,49 @@ export const useUpdateProduct = () => {
         imageUrls = await uploadFiles(data.images as File[], 'image');
       }
 
-      const payload = {
-        ...data,
-        images: imageUrls || data.images,
-      };
+      const payload: any = {};
+
+      if (data.title) payload.title = { ar: data.title };
+      if (data.description) payload.description = { ar: data.description };
+      if (data.SKU) payload.sku = data.SKU;
+      if (data.retailPrice !== undefined) {
+        payload.price = payload.price || {};
+        payload.price.retail = data.retailPrice;
+      }
+      if (data.costPrice !== undefined) {
+        payload.cost = data.costPrice;
+      }
+      if (data.bulkPrices) {
+        payload.price = payload.price || {};
+        payload.price.bulkPrices = data.bulkPrices.map(bp => ({
+          minQty: bp.minQty,
+          price: bp.price
+        }));
+      }
+      if (data.stock !== undefined) {
+        payload.stock = payload.stock || {};
+        payload.stock.qty = data.stock;
+      }
+      if (data.stockPolicy) {
+        payload.stock = payload.stock || {};
+        payload.stock.policy = data.stockPolicy;
+      }
+      if (data.categories) payload.categories = data.categories;
+      if (imageUrls) {
+        payload.images = imageUrls.map((url: string) => ({
+          path: url,
+          thumbPath: url,
+          alt: { ar: data.title || '' }
+        }));
+      }
+      if (data.isSpecial !== undefined) payload.isSpecial = data.isSpecial;
+      if (data.componentGroups) {
+        payload.specialConfig = {
+          mode: 'component_based',
+          componentGroups: data.componentGroups
+        };
+      }
+      if (data.isActive !== undefined) payload.isActive = data.isActive;
 
       const response = await apiClient.put<ApiResponse<Product>>(`/products/${id}`, payload);
       return response.data.data;
