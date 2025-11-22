@@ -10,7 +10,7 @@ const apiResponse_1 = require("../utils/apiResponse");
 /**
  * Global error handler middleware
  */
-const errorHandler = (err, req, res, next) => {
+const errorHandler = (err, req, res, _next) => {
     logger_1.default.error('Error:', {
         message: err.message,
         stack: err.stack,

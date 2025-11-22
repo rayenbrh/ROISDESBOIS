@@ -3,7 +3,7 @@ import { Request, Response, NextFunction } from 'express';
  * Get settings
  * GET /api/admin/settings
  */
-export declare const getSettings: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getSettings: (_req: Request, res: Response, next: NextFunction) => Promise<void>;
 /**
  * Update settings
  * PUT /api/admin/settings

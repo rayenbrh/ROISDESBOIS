@@ -69,13 +69,6 @@ const getOrdersQuerySchema = paginationSchema.keys({
 });
 
 /**
- * @route   GET /api/admin/orders/stats
- * @desc    Get order statistics
- * @access  Private (Admin or Commercial)
- */
-router.get('/stats', adminOrCommercial, orderController.getOrderStats);
-
-/**
  * @route   GET /api/admin/orders
  * @desc    Get all orders with pagination
  * @access  Private (Admin or Commercial)

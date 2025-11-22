@@ -105,7 +105,7 @@ export const deleteImageFile = async (
  * GET /api/admin/uploads/stats
  */
 export const getUploadStats = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

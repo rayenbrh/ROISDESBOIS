@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { Order, Product, SubProduct, Invoice, User } from '../models';
-import { sendSuccess, sendError } from '../utils/apiResponse';
-import logger from '../config/logger';
+import { sendSuccess } from '../utils/apiResponse';
 import { OrderStatus } from '../types';
 
 /**
@@ -362,7 +361,7 @@ export const getLowStock = async (
  * GET /api/admin/analytics/inventory
  */
 export const getInventoryStats = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
@@ -491,7 +490,7 @@ export const getPaymentStats = async (
  * GET /api/admin/analytics/dashboard
  */
 export const getDashboardSummary = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {

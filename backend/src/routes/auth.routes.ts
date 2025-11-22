@@ -3,7 +3,7 @@ import * as authController from '../controllers/authController';
 import { authenticate } from '../middleware/auth';
 import { validate } from '../middleware/validate';
 import Joi from 'joi';
-import { emailSchema, passwordSchema } from '../middleware/validate';
+import { emailSchema } from '../middleware/validate';
 
 const router = Router();
 

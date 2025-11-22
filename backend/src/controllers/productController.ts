@@ -464,6 +464,11 @@ export const generateComposite = async (
     // Queue composite generation job
     const job = await queueCompositeGeneration(product._id.toString(), mapping);
 
+    if (!job) {
+      sendError(res, 'Queue is disabled. Composite image generation is not available.', 503, 'QUEUE_DISABLED');
+      return;
+    }
+
     logger.info(`Composite generation job queued: ${job.id} for product ${product.title.ar}`);
 
     sendSuccess(res, {

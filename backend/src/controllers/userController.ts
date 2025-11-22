@@ -122,7 +122,7 @@ export const createUser = async (
 
     // Return user without password
     const userResponse = user.toObject();
-    delete userResponse.passwordHash;
+    delete (userResponse as any).passwordHash;
 
     sendSuccess(res, userResponse, 201);
   } catch (error) {
@@ -178,7 +178,7 @@ export const updateUser = async (
     logger.info(`User updated: ${user.email} by ${req.user?.email}`);
 
     const userResponse = user.toObject();
-    delete userResponse.passwordHash;
+    delete (userResponse as any).passwordHash;
 
     sendSuccess(res, userResponse);
   } catch (error) {

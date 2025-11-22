@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 /**
  * Global error handler middleware
  */
-export declare const errorHandler: (err: any, req: Request, res: Response, next: NextFunction) => void;
+export declare const errorHandler: (err: any, req: Request, res: Response, _next: NextFunction) => void;
 /**
  * 404 Not Found handler
  */

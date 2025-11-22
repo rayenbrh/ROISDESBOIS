@@ -1,1 +1,1 @@
-{"version":3,"file":"InventoryLog.d.ts","sourceRoot":"","sources":["../../src/models/InventoryLog.ts"],"names":[],"mappings":"AAwDA,eAAO,MAAM,YAAY,KAAoE,CAAC"}
+{"version":3,"file":"InventoryLog.d.ts","sourceRoot":"","sources":["../../src/models/InventoryLog.ts"],"names":[],"mappings":"AAAA,OAAO,QAAoB,MAAM,UAAU,CAAC;AAC5C,OAAO,EAAE,aAAa,EAAE,MAAM,UAAU,CAAC;AAuDzC,eAAO,MAAM,YAAY;;;;OAAoE,CAAC"}

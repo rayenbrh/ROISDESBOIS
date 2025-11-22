@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import path from 'path';
 import fs from 'fs/promises';
-import { Invoice, Order, Settings, User } from '../models';
+import { Invoice, Order, Settings } from '../models';
 import logger from '../config/logger';
 import { IInvoice, IOrder, ISettings } from '../types';
 
@@ -12,26 +12,6 @@ const ensurePdfDir = async (subDir: string = ''): Promise<string> => {
   const dir = path.join('uploads', 'pdfs', subDir);
   await fs.mkdir(dir, { recursive: true });
   return dir;
-};
-
-/**
- * Number to Arabic words (simplified - for amount in words)
- */
-const numberToArabicWords = (num: number): string => {
-  // Simplified implementation - in production use a proper library
-  const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة'];
-  const tens = ['', 'عشرة', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
-  const hundreds = ['', 'مئة', 'مئتان', 'ثلاثمئة', 'أربعمئة', 'خمسمئة', 'ستمئة', 'سبعمئة', 'ثمانمئة', 'تسعمئة'];
-
-  if (num === 0) return 'صفر';
-  if (num < 10) return ones[num];
-  if (num < 100) {
-    const ten = Math.floor(num / 10);
-    const one = num % 10;
-    return `${ones[one]} و ${tens[ten]}`.trim();
-  }
-
-  return num.toString(); // Fallback for larger numbers
 };
 
 /**
@@ -433,7 +413,6 @@ export const generateInvoicePDF = async (invoiceId: string): Promise<string> => 
       throw new Error('Invoice not found');
     }
 
-    const order = invoice.orderId as unknown as IOrder;
     const settings = await Settings.findOne() || {} as ISettings;
 
     const html = generateInvoiceHTML(invoice as any, settings);

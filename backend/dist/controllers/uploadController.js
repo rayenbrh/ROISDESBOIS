@@ -118,7 +118,7 @@ exports.deleteImageFile = deleteImageFile;
  * Get upload statistics
  * GET /api/admin/uploads/stats
  */
-const getUploadStats = async (req, res, next) => {
+const getUploadStats = async (_req, res, next) => {
     try {
         const uploadsDir = 'uploads';
         // Get directory size and file count recursively

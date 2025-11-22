@@ -43,5 +43,5 @@ export declare const deleteInvoice: (req: Request, res: Response, next: NextFunc
  * Get invoice statistics
  * GET /api/admin/invoices/stats
  */
-export declare const getInvoiceStats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getInvoiceStats: (_req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=invoiceController.d.ts.map

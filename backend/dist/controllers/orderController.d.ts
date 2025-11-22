@@ -43,5 +43,5 @@ export declare const deleteOrder: (req: Request, res: Response, next: NextFuncti
  * Get order statistics
  * GET /api/admin/orders/stats
  */
-export declare const getOrderStats: (req: Request, res: Response, next: NextFunction) => Promise<void>;
+export declare const getOrderStats: (_req: Request, res: Response, next: NextFunction) => Promise<void>;
 //# sourceMappingURL=orderController.d.ts.map

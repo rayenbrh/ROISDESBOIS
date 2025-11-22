@@ -70,12 +70,6 @@ const getInvoicesQuerySchema = validate_2.paginationSchema.keys({
     search: joi_1.default.string()
 });
 /**
- * @route   GET /api/admin/invoices/stats
- * @desc    Get invoice statistics
- * @access  Private (Admin or Commercial)
- */
-router.get('/stats', auth_1.adminOrCommercial, invoiceController.getInvoiceStats);
-/**
  * @route   GET /api/admin/invoices
  * @desc    Get all invoices with pagination
  * @access  Private (Admin or Commercial)

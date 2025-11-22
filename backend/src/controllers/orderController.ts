@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
-import { Order, Invoice } from '../models';
+import { Order } from '../models';
 import { sendSuccess, sendError, sendPaginated } from '../utils/apiResponse';
 import { logCreate, logUpdate, logStatusChange } from '../services/auditService';
-import { generateProductionSheet } from '../services/pdfService';
+import { generateProductionSheet as generateProductionSheetPDF } from '../services/pdfService';
 import logger from '../config/logger';
 import { OrderStatus, OrderSource } from '../types';
+import { Types } from 'mongoose';
 
 /**
  * Get all orders with pagination and filtering
@@ -272,7 +273,7 @@ export const changeOrderStatus = async (
     order.statusHistory = order.statusHistory || [];
     order.statusHistory.push({
       status,
-      changedBy: req.user?.userId,
+      changedBy: new Types.ObjectId(req.user?.userId),
       changedAt: new Date(),
       note
     });
@@ -366,7 +367,7 @@ export const generateOrderProductionSheet = async (
       return;
     }
 
-    const pdfPath = await generateProductionSheet(order._id.toString());
+    const pdfPath = await generateProductionSheetPDF(order._id.toString());
 
     // Log action
     if (req.user) {
@@ -448,7 +449,7 @@ export const deleteOrder = async (
  * GET /api/admin/orders/stats
  */
 export const getOrderStats = async (
-  req: Request,
+  _req: Request,
   res: Response,
   next: NextFunction
 ): Promise<void> => {
