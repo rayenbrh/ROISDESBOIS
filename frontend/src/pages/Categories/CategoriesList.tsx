@@ -47,16 +47,16 @@ const CategoriesList: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {categories?.map((category) => (
+        {(categories || []).map((category) => (
           <Card key={category._id}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 {category.icon && (
-                  <img src={category.icon} alt={category.name} className="w-10 h-10 rounded" />
+                  <img src={category.icon} alt={category.name?.ar || category.name} className="w-10 h-10 rounded" />
                 )}
                 <div>
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    {category.name}
+                    {category.name?.ar || category.name}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">{category.slug}</p>
                 </div>
