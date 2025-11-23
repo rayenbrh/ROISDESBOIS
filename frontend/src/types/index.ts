@@ -5,7 +5,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  role: 'admin' | 'commercial' | 'client';
+  role: 'admin' | 'commercial' | 'cashier' | 'client';
   assignedCommercial?: string;
   isActive: boolean;
   lastLogin?: string;
@@ -190,6 +190,12 @@ export interface ApiResponse<T> {
   success: boolean;
   data: T;
   message?: string;
+  meta?: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
 }
 
 export interface PaginatedResponse<T> {
@@ -219,7 +225,7 @@ export interface UserFormData {
   lastName: string;
   email: string;
   password?: string;
-  role: 'admin' | 'commercial' | 'client';
+  role: 'admin' | 'commercial' | 'cashier' | 'client';
   assignedCommercial?: string;
   isActive: boolean;
 }
