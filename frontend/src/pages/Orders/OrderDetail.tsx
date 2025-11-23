@@ -129,7 +129,7 @@ const OrderDetail: React.FC = () => {
               const product = item.product as any;
               return (
                 <tr key={idx}>
-                  <td className="px-4 py-3 text-right">{product?.title || '-'}</td>
+                  <td className="px-4 py-3 text-right">{product?.title?.ar || product?.title || '-'}</td>
                   <td className="px-4 py-3 text-right">{item.quantity}</td>
                   <td className="px-4 py-3 text-right">{formatCurrency(item.unitPrice)}</td>
                   <td className="px-4 py-3 text-right">{formatCurrency(item.total)}</td>

@@ -27,7 +27,7 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, onClose }) => {
   } = useForm<CategoryFormData>({
     defaultValues: category
       ? {
-          name: category.name,
+          name: category.name?.ar || category.name,
           slug: category.slug,
           parentCategory: category.parentCategory as string,
         }
@@ -67,9 +67,9 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, onClose }) => {
         label="الفئة الأم (اختياري)"
         options={[
           { value: '', label: 'لا يوجد' },
-          ...(categories
-            ?.filter((c) => c._id !== category?._id)
-            .map((c) => ({ value: c._id, label: c.name })) || []),
+          ...((categories || [])
+            .filter((c) => c._id !== category?._id)
+            .map((c) => ({ value: c._id, label: c.name?.ar || c.name }))),
         ]}
         value={watch('parentCategory') || ''}
         onChange={(value) => setValue('parentCategory', value || undefined)}
