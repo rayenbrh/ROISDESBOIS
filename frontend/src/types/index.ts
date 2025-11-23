@@ -232,7 +232,7 @@ export interface UserFormData {
 
 export interface CategoryFormData {
   name: string;
-  slug?: string;
+  slug: string;
   parentCategory?: string;
   icon?: File;
 }
