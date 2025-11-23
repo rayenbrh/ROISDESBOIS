@@ -8,7 +8,6 @@ import Login from './pages/Auth/Login';
 import Dashboard from './pages/Dashboard/Dashboard';
 import UsersList from './pages/Users/UsersList';
 import CategoriesList from './pages/Categories/CategoriesList';
-import SubProductsList from './pages/SubProducts/SubProductsList';
 import ProductsList from './pages/Products/ProductsList';
 import ProductForm from './pages/Products/ProductForm';
 import OrdersList from './pages/Orders/OrdersList';
@@ -45,7 +44,6 @@ const App: React.FC = () => {
               <Route index element={<Dashboard />} />
               <Route path="users" element={<UsersList />} />
               <Route path="categories" element={<CategoriesList />} />
-              <Route path="components" element={<SubProductsList />} />
               <Route path="products" element={<ProductsList />} />
               <Route path="products/new" element={<ProductForm />} />
               <Route path="products/:id" element={<ProductForm />} />

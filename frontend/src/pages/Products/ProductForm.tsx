@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useForm, useFieldArray } from 'react-hook-form';
-import { useProduct, useCreateProduct, useUpdateProduct } from '../../services/queries/productQueries';
+import { useProduct, useCreateProduct, useUpdateProduct, useProducts } from '../../services/queries/productQueries';
 import { useCategories } from '../../services/queries/categoryQueries';
 import Input from '../../components/common/Input';
 import Textarea from '../../components/common/Textarea';
@@ -23,8 +23,13 @@ const ProductForm: React.FC = () => {
 
   const { data: product, isLoading: productLoading } = useProduct(id!);
   const { data: categories } = useCategories();
+  const { data: productsData } = useProducts({}, 1, 1000); // Get all products for component selection
+  const availableProducts = productsData?.data || [];
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
+
+  // Track selected component products for special products
+  const [componentProducts, setComponentProducts] = useState<string[]>([]);
 
   const {
     register,
@@ -267,11 +272,53 @@ const ProductForm: React.FC = () => {
                 className="rounded border-gray-300 text-[#D4AF37] focus:ring-[#D4AF37]"
               />
               <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                منتج خاص (قابل للتخصيص)
+                منتج خاص (مكون من منتجات أخرى)
               </span>
             </label>
           </div>
         </Card>
+
+        {/* Component Products - Only shown for special products */}
+        {watch('isSpecial') && (
+          <Card header={<h2 className="font-semibold">مكونات المنتج الخاص</h2>}>
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                اختر المنتجات التي يتكون منها هذا المنتج الخاص
+              </p>
+              <MultiSelect
+                label="المنتجات المكونة"
+                options={availableProducts
+                  .filter(p => p._id !== id) // Exclude current product when editing
+                  .map((p) => ({
+                    value: p._id,
+                    label: (p.title as any)?.ar || p.title || p.SKU || 'منتج بدون اسم'
+                  }))}
+                value={componentProducts}
+                onChange={setComponentProducts}
+              />
+              {componentProducts.length > 0 && (
+                <div className="mt-4">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    المنتجات المحددة ({componentProducts.length}):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {componentProducts.map((productId) => {
+                      const product = availableProducts.find(p => p._id === productId);
+                      return (
+                        <span
+                          key={productId}
+                          className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37] bg-opacity-10 text-[#D4AF37] rounded-full text-sm"
+                        >
+                          {(product?.title as any)?.ar || product?.title || product?.SKU}
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          </Card>
+        )}
 
         {/* Actions */}
         <div className="flex gap-3 justify-end">
