@@ -109,11 +109,13 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       <div className="grid grid-cols-2 gap-4">
         <Input
           label="الاسم الأول"
+          placeholder={user?.firstName || 'أدخل الاسم الأول'}
           error={errors.firstName?.message}
           {...register('firstName', { required: 'الاسم الأول مطلوب' })}
         />
         <Input
           label="الاسم الأخير"
+          placeholder={user?.lastName || 'أدخل الاسم الأخير'}
           error={errors.lastName?.message}
           {...register('lastName', { required: 'الاسم الأخير مطلوب' })}
         />
@@ -122,6 +124,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       <Input
         label="البريد الإلكتروني"
         type="email"
+        placeholder={user?.email || 'أدخل البريد الإلكتروني'}
         error={errors.email?.message}
         {...register('email', {
           required: 'البريد الإلكتروني مطلوب',
