@@ -12,6 +12,19 @@ const Analytics: React.FC = () => {
   const { data: topClients } = useTopClients(10);
   const { data: categoryStats } = useCategoryStats();
 
+  // Transform data to extract localized strings for charts
+  const transformedTopProducts = topProducts?.map((item: any) => ({
+    ...item,
+    productTitle: item.product?.title?.ar || item.product?.title || item.productTitle || 'N/A',
+    revenue: item.totalRevenue || item.revenue || 0
+  })) || [];
+
+  const transformedCategoryStats = categoryStats?.map((item: any) => ({
+    ...item,
+    categoryName: item.category?.name?.ar || item.category?.name || 'N/A',
+    revenue: item.revenue || 0
+  })) || [];
+
   if (statsLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -60,9 +73,9 @@ const Analytics: React.FC = () => {
         <Card header={<h2 className="font-semibold">أفضل المنتجات</h2>}>
           <div className="h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={topProducts}>
+              <BarChart data={transformedTopProducts}>
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="product.title" />
+                <XAxis dataKey="productTitle" />
                 <YAxis />
                 <Tooltip formatter={(value: any) => formatCurrency(value)} />
                 <Bar dataKey="revenue" fill="#D4AF37" />
@@ -76,15 +89,15 @@ const Analytics: React.FC = () => {
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
-                  data={categoryStats}
+                  data={transformedCategoryStats}
                   dataKey="revenue"
-                  nameKey="category.name"
+                  nameKey="categoryName"
                   cx="50%"
                   cy="50%"
                   outerRadius={100}
                   label
                 >
-                  {categoryStats?.map((entry, index) => (
+                  {transformedCategoryStats?.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={CHART_COLORS[index % CHART_COLORS.length]} />
                   ))}
                 </Pie>
