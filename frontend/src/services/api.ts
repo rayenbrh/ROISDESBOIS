@@ -81,7 +81,8 @@ apiClient.interceptors.response.use(
 // Helper function to handle API errors
 export const getErrorMessage = (error: unknown): string => {
   if (axios.isAxiosError(error)) {
-    const message = error.response?.data?.message;
+    // Backend sends errors in format: { success: false, error: { code, message } }
+    const message = error.response?.data?.error?.message || error.response?.data?.message;
     if (message) return message;
 
     if (error.response?.status === 404) return 'المورد غير موجود';
