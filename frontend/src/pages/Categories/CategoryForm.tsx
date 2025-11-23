@@ -1,9 +1,7 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
-import { useCreateCategory, useUpdateCategory, useCategories } from '../../services/queries/categoryQueries';
+import { useCreateCategory, useUpdateCategory } from '../../services/queries/categoryQueries';
 import Input from '../../components/common/Input';
-import Select from '../../components/common/Select';
-import FileUpload from '../../components/common/FileUpload';
 import Button from '../../components/common/Button';
 import { Category, CategoryFormData } from '../../types';
 import toast from 'react-hot-toast';
@@ -16,31 +14,41 @@ interface CategoryFormProps {
 const CategoryForm: React.FC<CategoryFormProps> = ({ category, onClose }) => {
   const createMutation = useCreateCategory();
   const updateMutation = useUpdateCategory();
-  const { data: categories } = useCategories();
 
   const {
     register,
     handleSubmit,
-    watch,
-    setValue,
     formState: { errors },
   } = useForm<CategoryFormData>({
     defaultValues: category
       ? {
-          name: category.name?.ar || category.name,
-          slug: category.slug,
-          parentCategory: category.parentCategory as string,
+          name: (category.name as any)?.ar || category.name || '',
+          slug: '',
         }
       : {},
   });
 
   const onSubmit = async (data: CategoryFormData) => {
     try {
+      // Auto-generate slug from name
+      const slug = data.name
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9\u0600-\u06FF\s-]/g, '') // Keep only letters, numbers, Arabic chars, spaces, and hyphens
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+
+      const categoryData = {
+        ...data,
+        slug: slug || data.name, // Fallback to name if slug is empty
+      };
+
       if (category) {
-        await updateMutation.mutateAsync({ id: category._id, data });
+        await updateMutation.mutateAsync({ id: category._id, data: categoryData });
         toast.success('تم تحديث الفئة بنجاح');
       } else {
-        await createMutation.mutateAsync(data);
+        await createMutation.mutateAsync(categoryData);
         toast.success('تم إضافة الفئة بنجاح');
       }
       onClose();
@@ -53,34 +61,9 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, onClose }) => {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <Input
         label="اسم الفئة"
+        placeholder="أدخل اسم الفئة"
         error={errors.name?.message}
         {...register('name', { required: 'اسم الفئة مطلوب' })}
-      />
-
-      <Input
-        label="الرمز (Slug)"
-        error={errors.slug?.message}
-        {...register('slug', { required: 'الرمز مطلوب' })}
-      />
-
-      <Select
-        label="الفئة الأم (اختياري)"
-        options={[
-          { value: '', label: 'لا يوجد' },
-          ...((categories || [])
-            .filter((c) => c._id !== category?._id)
-            .map((c) => ({ value: c._id, label: c.name?.ar || c.name }))),
-        ]}
-        value={watch('parentCategory') || ''}
-        onChange={(value) => setValue('parentCategory', value || undefined)}
-      />
-
-      <FileUpload
-        label="أيقونة الفئة"
-        accept={{ 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }}
-        multiple={false}
-        value={watch('icon') ? [watch('icon')!] : []}
-        onChange={(files) => setValue('icon', files[0])}
       />
 
       <div className="flex gap-3 justify-end pt-4">
