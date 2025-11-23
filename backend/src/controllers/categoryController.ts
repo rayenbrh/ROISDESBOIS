@@ -242,7 +242,7 @@ export const deleteCategory = async (
     if (subcategoriesCount > 0) {
       sendError(
         res,
-        'Cannot delete category with subcategories',
+        'لا يمكن حذف فئة تحتوي على فئات فرعية',
         400,
         'HAS_SUBCATEGORIES'
       );
@@ -258,7 +258,7 @@ export const deleteCategory = async (
     if (productsCount > 0) {
       sendError(
         res,
-        'Cannot delete category that is assigned to products',
+        'لا يمكن حذف فئة مستخدمة في منتجات',
         400,
         'CATEGORY_IN_USE'
       );

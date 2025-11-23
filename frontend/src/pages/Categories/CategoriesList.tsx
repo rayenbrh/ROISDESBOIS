@@ -7,6 +7,7 @@ import Modal from '../../components/common/Modal';
 import CategoryForm from './CategoryForm';
 import { Category } from '../../types';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '../../services/api';
 
 const CategoriesList: React.FC = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -21,7 +22,8 @@ const CategoriesList: React.FC = () => {
         await deleteMutation.mutateAsync(id);
         toast.success('تم حذف الفئة بنجاح');
       } catch (error) {
-        toast.error('فشل حذف الفئة');
+        const errorMessage = getErrorMessage(error);
+        toast.error(errorMessage);
       }
     }
   };
