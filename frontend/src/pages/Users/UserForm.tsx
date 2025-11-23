@@ -7,6 +7,7 @@ import Checkbox from '../../components/common/Checkbox';
 import Button from '../../components/common/Button';
 import { User, UserFormData } from '../../types';
 import toast from 'react-hot-toast';
+import { getErrorMessage } from '../../services/api';
 
 interface UserFormProps {
   user?: User | null;
@@ -22,6 +23,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     register,
     handleSubmit,
     watch,
+    setValue,
     formState: { errors },
   } = useForm<UserFormData>({
     defaultValues: user
@@ -42,6 +44,12 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   const role = watch('role');
 
   const onSubmit = async (data: UserFormData) => {
+    // Validate that client role must have assigned commercial
+    if (data.role === 'client' && !data.assignedCommercial) {
+      toast.error('يجب اختيار تجاري للعميل');
+      return;
+    }
+
     try {
       if (user) {
         await updateMutation.mutateAsync({ id: user._id, data });
@@ -52,7 +60,8 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       }
       onClose();
     } catch (error) {
-      toast.error(user ? 'فشل تحديث المستخدم' : 'فشل إضافة المستخدم');
+      const errorMessage = getErrorMessage(error);
+      toast.error(errorMessage);
     }
   };
 
@@ -104,24 +113,25 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
         options={[
           { value: 'admin', label: 'مدير' },
           { value: 'commercial', label: 'تجاري' },
+          { value: 'cashier', label: 'كاشير' },
           { value: 'client', label: 'عميل' },
         ]}
         value={watch('role')}
-        onChange={(value) => register('role').onChange({ target: { value } })}
+        onChange={(value) => setValue('role', value as any)}
       />
 
       {role === 'client' && (
         <Select
-          label="التجاري المسؤول"
+          label="التجاري المسؤول *"
           options={[
             { value: '', label: 'اختر تجاري' },
-            ...(commercials?.map((c) => ({
+            ...((commercials || []).map((c) => ({
               value: c._id,
               label: `${c.firstName} ${c.lastName}`,
-            })) || []),
+            }))),
           ]}
           value={watch('assignedCommercial') || ''}
-          onChange={(value) => register('assignedCommercial').onChange({ target: { value } })}
+          onChange={(value) => setValue('assignedCommercial', value)}
         />
       )}
 

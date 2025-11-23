@@ -15,7 +15,7 @@ export const useUsers = (filters?: UserFilters, page = 1, limit = 10) => {
       params.append('limit', String(limit));
 
       const response = await apiClient.get<ApiResponse<PaginatedResponse<User>>>(
-        `/users?${params.toString()}`
+        `/admin/users?${params.toString()}`
       );
       return response.data.data;
     },
@@ -40,7 +40,20 @@ export const useCreateUser = () => {
 
   return useMutation({
     mutationFn: async (data: UserFormData) => {
-      const response = await apiClient.post<ApiResponse<User>>('/admin/users', data);
+      // Transform frontend format to backend format
+      const payload = {
+        name: {
+          first: data.firstName,
+          last: data.lastName
+        },
+        email: data.email,
+        password: data.password,
+        role: data.role,
+        assignedCommercial: data.role === 'client' ? data.assignedCommercial : undefined,
+        isActive: data.isActive
+      };
+
+      const response = await apiClient.post<ApiResponse<User>>('/admin/users', payload);
       return response.data.data;
     },
     onSuccess: () => {
@@ -55,7 +68,26 @@ export const useUpdateUser = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<UserFormData> }) => {
-      const response = await apiClient.put<ApiResponse<User>>(`/admin/users/${id}`, data);
+      // Transform frontend format to backend format
+      const payload: any = {};
+
+      if (data.firstName || data.lastName) {
+        payload.name = {
+          first: data.firstName,
+          last: data.lastName
+        };
+      }
+      if (data.email) payload.email = data.email;
+      if (data.password) payload.password = data.password;
+      if (data.role) payload.role = data.role;
+      if (data.role === 'client' && data.assignedCommercial) {
+        payload.assignedCommercial = data.assignedCommercial;
+      } else if (data.role && data.role !== 'client') {
+        payload.assignedCommercial = null;
+      }
+      if (data.isActive !== undefined) payload.isActive = data.isActive;
+
+      const response = await apiClient.put<ApiResponse<User>>(`/admin/users/${id}`, payload);
       return response.data.data;
     },
     onSuccess: (_, variables) => {
