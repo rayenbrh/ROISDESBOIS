@@ -2,6 +2,7 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { useCreateCategory, useUpdateCategory } from '../../services/queries/categoryQueries';
 import Input from '../../components/common/Input';
+import FileUpload from '../../components/common/FileUpload';
 import Button from '../../components/common/Button';
 import { Category, CategoryFormData } from '../../types';
 import toast from 'react-hot-toast';
@@ -18,37 +19,25 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, onClose }) => {
   const {
     register,
     handleSubmit,
+    watch,
+    setValue,
     formState: { errors },
   } = useForm<CategoryFormData>({
     defaultValues: category
       ? {
           name: (category.name as any)?.ar || category.name || '',
-          slug: '',
+          slug: category.slug || '',
         }
       : {},
   });
 
   const onSubmit = async (data: CategoryFormData) => {
     try {
-      // Auto-generate slug from name
-      const slug = data.name
-        .toLowerCase()
-        .trim()
-        .replace(/[^a-z0-9\u0600-\u06FF\s-]/g, '') // Keep only letters, numbers, Arabic chars, spaces, and hyphens
-        .replace(/\s+/g, '-') // Replace spaces with hyphens
-        .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
-        .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
-
-      const categoryData = {
-        ...data,
-        slug: slug || data.name, // Fallback to name if slug is empty
-      };
-
       if (category) {
-        await updateMutation.mutateAsync({ id: category._id, data: categoryData });
+        await updateMutation.mutateAsync({ id: category._id, data });
         toast.success('تم تحديث الفئة بنجاح');
       } else {
-        await createMutation.mutateAsync(categoryData);
+        await createMutation.mutateAsync(data);
         toast.success('تم إضافة الفئة بنجاح');
       }
       onClose();
@@ -64,6 +53,21 @@ const CategoryForm: React.FC<CategoryFormProps> = ({ category, onClose }) => {
         placeholder="أدخل اسم الفئة"
         error={errors.name?.message}
         {...register('name', { required: 'اسم الفئة مطلوب' })}
+      />
+
+      <Input
+        label="الرمز (Slug)"
+        placeholder="أدخل الرمز"
+        error={errors.slug?.message}
+        {...register('slug', { required: 'الرمز مطلوب' })}
+      />
+
+      <FileUpload
+        label="أيقونة الفئة"
+        accept={{ 'image/*': ['.png', '.jpg', '.jpeg', '.webp'] }}
+        multiple={false}
+        value={watch('icon') ? [watch('icon')!] : []}
+        onChange={(files) => setValue('icon', files[0])}
       />
 
       <div className="flex gap-3 justify-end pt-4">
