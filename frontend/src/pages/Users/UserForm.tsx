@@ -24,24 +24,39 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     handleSubmit,
     watch,
     setValue,
+    reset,
     formState: { errors },
   } = useForm<UserFormData>({
-    defaultValues: user
-      ? {
-          firstName: user.firstName,
-          lastName: user.lastName,
-          email: user.email,
-          role: user.role,
-          assignedCommercial: user.assignedCommercial,
-          isActive: user.isActive,
-        }
-      : {
-          role: 'client',
-          isActive: true,
-        },
+    defaultValues: {
+      role: 'client',
+      isActive: true,
+    },
   });
 
   const role = watch('role');
+
+  // Reset form when user changes (for editing)
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName || '',
+        lastName: user.lastName || '',
+        email: user.email || '',
+        role: user.role,
+        assignedCommercial: user.assignedCommercial || undefined,
+        isActive: user.isActive,
+      });
+    } else {
+      reset({
+        firstName: '',
+        lastName: '',
+        email: '',
+        role: 'client',
+        assignedCommercial: undefined,
+        isActive: true,
+      });
+    }
+  }, [user, reset]);
 
   // Clear assignedCommercial when role changes away from 'client'
   useEffect(() => {
