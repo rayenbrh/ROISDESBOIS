@@ -28,8 +28,37 @@ const ProductForm: React.FC = () => {
   const createMutation = useCreateProduct();
   const updateMutation = useUpdateProduct();
 
-  // Track selected component products for special products
-  const [componentProducts, setComponentProducts] = useState<string[]>([]);
+  // Track component groups for special products (e.g., "Table Top" with [wood, metal], "Legs" with [wood, metal])
+  const [componentGroups, setComponentGroups] = useState<Array<{
+    label: string;
+    productIds: string[];
+  }>>([]);
+
+  const addComponentGroup = () => {
+    setComponentGroups([...componentGroups, { label: '', productIds: [] }]);
+  };
+
+  const removeComponentGroup = (index: number) => {
+    setComponentGroups(componentGroups.filter((_, i) => i !== index));
+  };
+
+  const updateGroupLabel = (index: number, label: string) => {
+    const updated = [...componentGroups];
+    updated[index].label = label;
+    setComponentGroups(updated);
+  };
+
+  const updateGroupProducts = (index: number, productIds: string[]) => {
+    const updated = [...componentGroups];
+    updated[index].productIds = productIds;
+    setComponentGroups(updated);
+  };
+
+  // Calculate total combinations
+  const getTotalCombinations = () => {
+    if (componentGroups.length === 0) return 0;
+    return componentGroups.reduce((total, group) => total * (group.productIds.length || 1), 1);
+  };
 
   const {
     register,
@@ -278,42 +307,102 @@ const ProductForm: React.FC = () => {
           </div>
         </Card>
 
-        {/* Component Products - Only shown for special products */}
+        {/* Component Groups - Only shown for special products */}
         {watch('isSpecial') && (
           <Card header={<h2 className="font-semibold">مكونات المنتج الخاص</h2>}>
             <div className="space-y-4">
-              <p className="text-sm text-gray-600 dark:text-gray-400">
-                اختر المنتجات التي يتكون منها هذا المنتج الخاص
-              </p>
-              <MultiSelect
-                label="المنتجات المكونة"
-                options={availableProducts
-                  .filter(p => p._id !== id) // Exclude current product when editing
-                  .map((p) => ({
-                    value: p._id,
-                    label: (p.title as any)?.ar || p.title || p.SKU || 'منتج بدون اسم'
-                  }))}
-                value={componentProducts}
-                onChange={setComponentProducts}
-              />
-              {componentProducts.length > 0 && (
-                <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                    المنتجات المحددة ({componentProducts.length}):
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {componentProducts.map((productId) => {
-                      const product = availableProducts.find(p => p._id === productId);
-                      return (
-                        <span
-                          key={productId}
-                          className="inline-flex items-center gap-1 px-3 py-1 bg-[#D4AF37] bg-opacity-10 text-[#D4AF37] rounded-full text-sm"
-                        >
-                          {(product?.title as any)?.ar || product?.title || product?.SKU}
-                        </span>
-                      );
-                    })}
+              <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
+                <p className="text-sm text-blue-800 dark:text-blue-200 font-medium mb-2">
+                  💡 كيفية إنشاء منتج خاص:
+                </p>
+                <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1 list-disc list-inside">
+                  <li>أضف مجموعتين من المكونات (مثل: "سطح الطاولة" و "الأرجل")</li>
+                  <li>لكل مجموعة، اختر المنتجات المتاحة (مثل: خشب أو معدن)</li>
+                  <li>العميل سيختار منتج واحد من كل مجموعة</li>
+                  <li>مثال: سطح خشب + أرجل معدن = تركيبة واحدة من المنتج الخاص</li>
+                </ul>
+              </div>
+
+              {componentGroups.map((group, index) => (
+                <div key={index} className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-gray-900 dark:text-gray-100">
+                      مجموعة {index + 1}
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => removeComponentGroup(index)}
+                      className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded"
+                    >
+                      <TrashIcon className="h-5 w-5" />
+                    </button>
                   </div>
+
+                  <Input
+                    label="اسم المجموعة"
+                    placeholder='مثل: "سطح الطاولة" أو "الأرجل"'
+                    value={group.label}
+                    onChange={(e) => updateGroupLabel(index, e.target.value)}
+                  />
+
+                  <MultiSelect
+                    label="المنتجات المتاحة في هذه المجموعة"
+                    options={availableProducts
+                      .filter(p => p._id !== id && !p.isSpecial) // Exclude current product and other special products
+                      .map((p) => ({
+                        value: p._id,
+                        label: (p.title as any)?.ar || p.title || p.SKU || 'منتج بدون اسم'
+                      }))}
+                    value={group.productIds}
+                    onChange={(productIds) => updateGroupProducts(index, productIds)}
+                  />
+
+                  {group.productIds.length > 0 && (
+                    <div className="mt-2">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                        {group.productIds.length} خيار متاح
+                      </p>
+                      <div className="flex flex-wrap gap-2">
+                        {group.productIds.map((productId) => {
+                          const product = availableProducts.find(p => p._id === productId);
+                          return (
+                            <span
+                              key={productId}
+                              className="inline-flex items-center gap-1 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs"
+                            >
+                              {(product?.title as any)?.ar || product?.title || product?.SKU}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              <div className="flex items-center justify-between pt-2">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  icon={<PlusIcon className="h-4 w-4" />}
+                  onClick={addComponentGroup}
+                >
+                  إضافة مجموعة مكونات
+                </Button>
+
+                {componentGroups.length >= 2 && getTotalCombinations() > 0 && (
+                  <div className="text-sm text-gray-600 dark:text-gray-400">
+                    <span className="font-medium text-[#D4AF37]">{getTotalCombinations()}</span> تركيبة ممكنة
+                  </div>
+                )}
+              </div>
+
+              {componentGroups.length > 0 && componentGroups.length < 2 && (
+                <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3">
+                  <p className="text-sm text-yellow-800 dark:text-yellow-200">
+                    ⚠️ المنتج الخاص يحتاج على الأقل مجموعتين من المكونات
+                  </p>
                 </div>
               )}
             </div>
