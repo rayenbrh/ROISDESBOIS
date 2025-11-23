@@ -14,10 +14,29 @@ export const useUsers = (filters?: UserFilters, page = 1, limit = 10) => {
       params.append('page', String(page));
       params.append('limit', String(limit));
 
-      const response = await apiClient.get<ApiResponse<PaginatedResponse<User>>>(
+      const response = await apiClient.get<ApiResponse<any[]>>(
         `/admin/users?${params.toString()}`
       );
-      return response.data.data;
+
+      // Backend returns users with name: {first, last} structure
+      // Transform to frontend format with firstName, lastName
+      const transformedUsers = (response.data.data || []).map((user: any) => ({
+        ...user,
+        firstName: user.name?.first || '',
+        lastName: user.name?.last || ''
+      }));
+
+      // Backend returns { success, data: [...users], meta: {page, limit, total, totalPages} }
+      // Transform to match PaginatedResponse structure
+      return {
+        data: transformedUsers,
+        pagination: {
+          currentPage: response.data.meta?.page || page,
+          totalPages: response.data.meta?.totalPages || 1,
+          totalItems: response.data.meta?.total || 0,
+          itemsPerPage: response.data.meta?.limit || limit
+        }
+      };
     },
   });
 };
@@ -27,8 +46,14 @@ export const useUser = (id: string) => {
   return useQuery({
     queryKey: ['user', id],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<User>>(`/admin/users/${id}`);
-      return response.data.data;
+      const response = await apiClient.get<ApiResponse<any>>(`/admin/users/${id}`);
+      const user = response.data.data;
+      // Transform backend format to frontend format
+      return {
+        ...user,
+        firstName: user.name?.first || '',
+        lastName: user.name?.last || ''
+      };
     },
     enabled: !!id,
   });
@@ -116,8 +141,13 @@ export const useCommercials = () => {
   return useQuery({
     queryKey: ['commercials'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<User[]>>('/admin/users?role=commercial');
-      return response.data.data;
+      const response = await apiClient.get<ApiResponse<any[]>>('/admin/users?role=commercial&limit=100');
+      // Transform backend format to frontend format
+      return (response.data.data || []).map((user: any) => ({
+        ...user,
+        firstName: user.name?.first || '',
+        lastName: user.name?.last || ''
+      }));
     },
   });
 };
@@ -127,8 +157,13 @@ export const useClients = () => {
   return useQuery({
     queryKey: ['clients'],
     queryFn: async () => {
-      const response = await apiClient.get<ApiResponse<User[]>>('/admin/users?role=client');
-      return response.data.data;
+      const response = await apiClient.get<ApiResponse<any[]>>('/admin/users?role=client&limit=100');
+      // Transform backend format to frontend format
+      return (response.data.data || []).map((user: any) => ({
+        ...user,
+        firstName: user.name?.first || '',
+        lastName: user.name?.last || ''
+      }));
     },
   });
 };

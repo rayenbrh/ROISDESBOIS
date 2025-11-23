@@ -114,6 +114,7 @@ const UsersList: React.FC = () => {
               { value: '', label: 'جميع الأدوار' },
               { value: 'admin', label: 'مدير' },
               { value: 'commercial', label: 'تجاري' },
+              { value: 'cashier', label: 'كاشير' },
               { value: 'client', label: 'عميل' },
             ]}
             value={filters.role || ''}
