@@ -4,10 +4,16 @@ import { useSubProducts } from '../../services/queries/subProductQueries';
 import Card from '../../components/common/Card';
 import Button from '../../components/common/Button';
 import Badge from '../../components/common/Badge';
+import Modal from '../../components/common/Modal';
+import SubProductForm from './SubProductForm';
+import { SubProduct } from '../../types';
 import { formatCurrency } from '../../utils/format';
 
 const SubProductsList: React.FC = () => {
   const [page, setPage] = useState(1);
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingSubProduct, setEditingSubProduct] = useState<SubProduct | null>(null);
+
   const { data, isLoading } = useSubProducts(page);
 
   if (isLoading) return <div>جاري التحميل...</div>;
@@ -19,7 +25,13 @@ const SubProductsList: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">المكونات</h1>
           <p className="mt-1 text-gray-600 dark:text-gray-400">إدارة مكونات المنتجات الخاصة</p>
         </div>
-        <Button icon={<PlusIcon className="h-5 w-5" />}>
+        <Button
+          icon={<PlusIcon className="h-5 w-5" />}
+          onClick={() => {
+            setEditingSubProduct(null);
+            setIsFormOpen(true);
+          }}
+        >
           إضافة مكون
         </Button>
       </div>
@@ -49,6 +61,23 @@ const SubProductsList: React.FC = () => {
           </Card>
         ))}
       </div>
+
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => {
+          setIsFormOpen(false);
+          setEditingSubProduct(null);
+        }}
+        title={editingSubProduct ? 'تعديل مكون' : 'إضافة مكون'}
+      >
+        <SubProductForm
+          subProduct={editingSubProduct}
+          onClose={() => {
+            setIsFormOpen(false);
+            setEditingSubProduct(null);
+          }}
+        />
+      </Modal>
     </div>
   );
 };

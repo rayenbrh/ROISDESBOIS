@@ -93,11 +93,11 @@ export const useUpdateProduct = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<ProductFormData> }) => {
-      let imageUrls: string[] | undefined;
+      let uploadedImages: any[] | undefined;
 
       // Upload new images if provided
       if (data.images && data.images.length > 0 && data.images[0] instanceof File) {
-        imageUrls = await uploadFiles(data.images as File[], 'image');
+        uploadedImages = await uploadFiles(data.images as File[], 'image');
       }
 
       const payload: any = {};
@@ -128,10 +128,12 @@ export const useUpdateProduct = () => {
         payload.stock.policy = data.stockPolicy;
       }
       if (data.categories) payload.categories = data.categories;
-      if (imageUrls) {
-        payload.images = imageUrls.map((url: string) => ({
-          path: url,
-          thumbPath: url,
+      if (uploadedImages) {
+        payload.images = uploadedImages.map(img => ({
+          path: img.path,
+          thumbPath: img.thumbPath,
+          width: img.width,
+          height: img.height,
           alt: { ar: data.title || '' }
         }));
       }
