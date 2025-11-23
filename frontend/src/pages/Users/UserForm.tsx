@@ -24,35 +24,24 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     handleSubmit,
     watch,
     setValue,
-    reset,
     formState: { errors },
   } = useForm<UserFormData>({
-    defaultValues: {
-      role: 'client',
-      isActive: true,
-    },
+    defaultValues: user
+      ? {
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.role,
+          assignedCommercial: user.assignedCommercial,
+          isActive: user.isActive,
+        }
+      : {
+          role: 'client',
+          isActive: true,
+        },
   });
 
   const role = watch('role');
-
-  // Reset form with user data when editing
-  useEffect(() => {
-    if (user) {
-      reset({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-        assignedCommercial: user.assignedCommercial as string,
-        isActive: user.isActive,
-      });
-    } else {
-      reset({
-        role: 'client',
-        isActive: true,
-      });
-    }
-  }, [user, reset]);
 
   // Clear assignedCommercial when role changes away from 'client'
   useEffect(() => {
@@ -101,7 +90,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form key={user?._id || 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <Input
           label="الاسم الأول"
