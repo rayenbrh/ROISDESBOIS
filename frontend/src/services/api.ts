@@ -111,7 +111,7 @@ export const uploadFile = async (file: File, type: 'image' | 'document' = 'image
 };
 
 // Helper function to upload multiple files
-export const uploadFiles = async (files: File[], type: 'image' | 'document' = 'image'): Promise<string[]> => {
+export const uploadFiles = async (files: File[], type: 'image' | 'document' = 'image'): Promise<any[]> => {
   const formData = new FormData();
   files.forEach(file => {
     formData.append('images', file);
@@ -124,7 +124,8 @@ export const uploadFiles = async (files: File[], type: 'image' | 'document' = 'i
   });
 
   // Backend returns array of { path, thumbPath, width, height }
-  return response.data.data.map((img: any) => img.path);
+  // Return full objects for proper backend compatibility
+  return response.data.data;
 };
 
 export default apiClient;

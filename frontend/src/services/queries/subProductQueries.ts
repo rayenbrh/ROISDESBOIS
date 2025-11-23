@@ -13,7 +13,7 @@ export const useSubProducts = (page = 1, limit = 20, search?: string) => {
       if (search) params.append('search', search);
 
       const response = await apiClient.get<ApiResponse<PaginatedResponse<SubProduct>>>(
-        `/subproducts?${params.toString()}`
+        `/admin/subproducts?${params.toString()}`
       );
       return response.data.data;
     },
@@ -38,15 +38,21 @@ export const useCreateSubProduct = () => {
 
   return useMutation({
     mutationFn: async (data: SubProductFormData) => {
-      // Upload images
-      const imageUrls = await uploadFiles(data.images, 'image');
+      // Upload images - returns array of { path, thumbPath, width, height }
+      const uploadedImages = data.images.length > 0 ? await uploadFiles(data.images, 'image') : [];
 
       const payload = {
-        title: data.title,
-        SKU: data.SKU,
+        title: { ar: data.title },
+        sku: data.SKU,
         extraPrice: data.extraPrice,
         stock: data.stock,
-        images: imageUrls,
+        images: uploadedImages.map(img => ({
+          path: img.path,
+          thumbPath: img.thumbPath,
+          width: img.width,
+          height: img.height,
+          alt: { ar: data.title }
+        })),
       };
 
       const response = await apiClient.post<ApiResponse<SubProduct>>('/admin/subproducts', payload);
@@ -64,17 +70,28 @@ export const useUpdateSubProduct = () => {
 
   return useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<SubProductFormData> }) => {
-      let imageUrls: string[] | undefined;
+      let uploadedImages: any[] | undefined;
 
       // Upload new images if provided
       if (data.images && data.images.length > 0) {
-        imageUrls = await uploadFiles(data.images, 'image');
+        uploadedImages = await uploadFiles(data.images, 'image');
       }
 
-      const payload = {
-        ...data,
-        images: imageUrls || data.images,
-      };
+      const payload: any = {};
+
+      if (data.title) payload.title = { ar: data.title };
+      if (data.SKU) payload.sku = data.SKU;
+      if (data.extraPrice !== undefined) payload.extraPrice = data.extraPrice;
+      if (data.stock !== undefined) payload.stock = data.stock;
+      if (uploadedImages) {
+        payload.images = uploadedImages.map(img => ({
+          path: img.path,
+          thumbPath: img.thumbPath,
+          width: img.width,
+          height: img.height,
+          alt: { ar: data.title || '' }
+        }));
+      }
 
       const response = await apiClient.put<ApiResponse<SubProduct>>(`/admin/subproducts/${id}`, payload);
       return response.data.data;
