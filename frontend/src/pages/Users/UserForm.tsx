@@ -21,11 +21,9 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
 
   const {
     register,
-    handleSubmit,
     watch,
     setValue,
     reset,
-    formState: { errors },
   } = useForm<UserFormData>({
     defaultValues: {
       role: 'client',
@@ -82,12 +80,60 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
     }))),
   ], [commercials]);
 
-  const onSubmit = async (data: UserFormData) => {
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Get form values
+    const firstName = watch('firstName');
+    const lastName = watch('lastName');
+    const email = watch('email');
+    const password = watch('password');
+    const currentRole = watch('role');
+    const assignedCommercial = watch('assignedCommercial');
+    const isActive = watch('isActive');
+
+    // Validate required fields
+    if (!firstName || !firstName.trim()) {
+      toast.error('الاسم الأول مطلوب');
+      return;
+    }
+    if (!lastName || !lastName.trim()) {
+      toast.error('الاسم الأخير مطلوب');
+      return;
+    }
+    if (!email || !email.trim()) {
+      toast.error('البريد الإلكتروني مطلوب');
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    if (!emailRegex.test(email)) {
+      toast.error('البريد الإلكتروني غير صحيح');
+      return;
+    }
+
+    // Validate password for new users
+    if (!user && (!password || password.length < 6)) {
+      toast.error('كلمة المرور يجب أن تكون 6 أحرف على الأقل');
+      return;
+    }
+
     // Validate that client role must have assigned commercial
-    if (data.role === 'client' && !data.assignedCommercial) {
+    if (currentRole === 'client' && !assignedCommercial) {
       toast.error('يجب اختيار تجاري للعميل');
       return;
     }
+
+    const data: UserFormData = {
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      email: email.trim(),
+      role: currentRole,
+      assignedCommercial,
+      isActive: isActive ?? true,
+      ...(password && { password }),
+    };
 
     try {
       if (user) {
@@ -105,48 +151,36 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   };
 
   return (
-    <form key={user?._id || 'new'} onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+    <form key={user?._id || 'new'} onSubmit={onSubmit} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <Input
           label="الاسم الأول"
-          placeholder={user?.firstName || 'أدخل الاسم الأول'}
-          error={errors.firstName?.message}
-          {...register('firstName', { required: 'الاسم الأول مطلوب' })}
+          placeholder="أدخل الاسم الأول"
+          value={watch('firstName') || ''}
+          onChange={(e) => setValue('firstName', e.target.value)}
         />
         <Input
           label="الاسم الأخير"
-          placeholder={user?.lastName || 'أدخل الاسم الأخير'}
-          error={errors.lastName?.message}
-          {...register('lastName', { required: 'الاسم الأخير مطلوب' })}
+          placeholder="أدخل الاسم الأخير"
+          value={watch('lastName') || ''}
+          onChange={(e) => setValue('lastName', e.target.value)}
         />
       </div>
 
       <Input
         label="البريد الإلكتروني"
         type="email"
-        placeholder={user?.email || 'أدخل البريد الإلكتروني'}
-        error={errors.email?.message}
-        {...register('email', {
-          required: 'البريد الإلكتروني مطلوب',
-          pattern: {
-            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-            message: 'البريد الإلكتروني غير صحيح',
-          },
-        })}
+        placeholder="أدخل البريد الإلكتروني"
+        value={watch('email') || ''}
+        onChange={(e) => setValue('email', e.target.value)}
       />
 
       {!user && (
         <Input
           label="كلمة المرور"
           type="password"
-          error={errors.password?.message}
-          {...register('password', {
-            required: !user ? 'كلمة المرور مطلوبة' : false,
-            minLength: {
-              value: 6,
-              message: 'كلمة المرور يجب أن تكون 6 أحرف على الأقل',
-            },
-          })}
+          placeholder="أدخل كلمة المرور"
+          {...register('password')}
         />
       )}
 
