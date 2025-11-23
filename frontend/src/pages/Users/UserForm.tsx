@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { useCreateUser, useUpdateUser, useCommercials } from '../../services/queries/userQueries';
 import Input from '../../components/common/Input';
@@ -42,6 +42,30 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
   });
 
   const role = watch('role');
+
+  // Clear assignedCommercial when role changes away from 'client'
+  useEffect(() => {
+    if (role && role !== 'client') {
+      setValue('assignedCommercial', undefined);
+    }
+  }, [role, setValue]);
+
+  // Memoize role options to prevent re-creation on every render
+  const roleOptions = useMemo(() => [
+    { value: 'admin', label: 'مدير' },
+    { value: 'commercial', label: 'تجاري' },
+    { value: 'cashier', label: 'كاشير' },
+    { value: 'client', label: 'عميل' },
+  ], []);
+
+  // Memoize commercial options
+  const commercialOptions = useMemo(() => [
+    { value: '', label: 'اختر تجاري' },
+    ...((commercials || []).map((c) => ({
+      value: c._id,
+      label: `${c.firstName} ${c.lastName}`,
+    }))),
+  ], [commercials]);
 
   const onSubmit = async (data: UserFormData) => {
     // Validate that client role must have assigned commercial
@@ -110,12 +134,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
 
       <Select
         label="الدور"
-        options={[
-          { value: 'admin', label: 'مدير' },
-          { value: 'commercial', label: 'تجاري' },
-          { value: 'cashier', label: 'كاشير' },
-          { value: 'client', label: 'عميل' },
-        ]}
+        options={roleOptions}
         value={watch('role')}
         onChange={(value) => setValue('role', value as any)}
       />
@@ -123,13 +142,7 @@ const UserForm: React.FC<UserFormProps> = ({ user, onClose }) => {
       {role === 'client' && (
         <Select
           label="التجاري المسؤول *"
-          options={[
-            { value: '', label: 'اختر تجاري' },
-            ...((commercials || []).map((c) => ({
-              value: c._id,
-              label: `${c.firstName} ${c.lastName}`,
-            }))),
-          ]}
+          options={commercialOptions}
           value={watch('assignedCommercial') || ''}
           onChange={(value) => setValue('assignedCommercial', value)}
         />
