@@ -25,19 +25,19 @@ const SubProductsList: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {data?.data.map((subProduct) => (
+        {(data?.data || []).map((subProduct) => (
           <Card key={subProduct._id}>
-            {subProduct.images[0] && (
+            {subProduct.images?.[0]?.path && (
               <img
-                src={subProduct.images[0]}
-                alt={subProduct.title}
+                src={subProduct.images[0].path}
+                alt={subProduct.title?.ar || subProduct.title}
                 className="w-full h-48 object-cover rounded-t-lg mb-4"
               />
             )}
             <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-              {subProduct.title}
+              {subProduct.title?.ar || subProduct.title}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{subProduct.SKU}</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">{subProduct.sku || subProduct.SKU}</p>
             <div className="mt-2 flex items-center justify-between">
               <span className="text-sm text-gray-600 dark:text-gray-400">
                 سعر إضافي: {formatCurrency(subProduct.extraPrice)}

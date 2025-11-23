@@ -43,8 +43,8 @@ export const useCreateProduct = () => {
 
   return useMutation({
     mutationFn: async (data: ProductFormData) => {
-      // Upload images
-      const imageUrls = data.images.length > 0 ? await uploadFiles(data.images, 'image') : [];
+      // Upload images - returns array of { path, thumbPath, width, height }
+      const uploadedImages = data.images.length > 0 ? await uploadFiles(data.images, 'image') : [];
 
       const payload = {
         title: { ar: data.title },
@@ -63,9 +63,11 @@ export const useCreateProduct = () => {
           policy: data.stockPolicy
         },
         categories: data.categories,
-        images: imageUrls.map(url => ({
-          path: url,
-          thumbPath: url,
+        images: uploadedImages.map(img => ({
+          path: img.path,
+          thumbPath: img.thumbPath,
+          width: img.width,
+          height: img.height,
           alt: { ar: data.title }
         })),
         isSpecial: data.isSpecial,
