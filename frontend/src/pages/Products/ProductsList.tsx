@@ -26,11 +26,18 @@ const ProductsList: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">المنتجات</h1>
           <p className="mt-1 text-gray-600 dark:text-gray-400">إدارة المنتجات والمخزون</p>
         </div>
-        <Link to="/admin/products/new">
-          <Button icon={<PlusIcon className="h-5 w-5" />}>
-            إضافة منتج
-          </Button>
-        </Link>
+        <div className="flex gap-3">
+          <Link to="/admin/products/new">
+            <Button variant="secondary" icon={<PlusIcon className="h-5 w-5" />}>
+              إضافة منتج عادي
+            </Button>
+          </Link>
+          <Link to="/admin/products/special/new">
+            <Button icon={<PlusIcon className="h-5 w-5" />}>
+              إنشاء منتج خاص
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <Card>
