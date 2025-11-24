@@ -76,6 +76,14 @@ export const useCreateProduct = () => {
         isActive: data.isActive,
       };
 
+      console.log('productQueries - Sending payload to backend:', {
+        stock: payload.stock,
+        stockPolicy: payload.stockPolicy,
+        stockType: typeof payload.stock,
+        stockPolicyType: typeof payload.stockPolicy,
+        fullPayload: payload
+      });
+
       const response = await apiClient.post<ApiResponse<Product>>('/admin/products', payload);
       return response.data.data;
     },
