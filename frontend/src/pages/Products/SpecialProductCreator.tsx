@@ -30,6 +30,7 @@ const SpecialProductCreator: React.FC = () => {
   const [description, setDescription] = useState('');
   const [sku, setSku] = useState('');
   const [retailPrice, setRetailPrice] = useState('');
+  const [stock, setStock] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   // Product selection
@@ -108,7 +109,7 @@ const SpecialProductCreator: React.FC = () => {
         retailPrice: parseFloat(retailPrice) || 0,
         costPrice: 0,
         bulkPrices: [],
-        stock: 0,
+        stock: parseInt(stock) || 0,
         stockPolicy: 'track' as const,
         categories: selectedCategories,
         images: imageFiles,
@@ -197,7 +198,7 @@ const SpecialProductCreator: React.FC = () => {
             onChange={(e) => setDescription(e.target.value)}
           />
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Input
               label="السعر"
               type="number"
@@ -205,6 +206,14 @@ const SpecialProductCreator: React.FC = () => {
               placeholder="0.00"
               value={retailPrice}
               onChange={(e) => setRetailPrice(e.target.value)}
+            />
+
+            <Input
+              label="الكمية المتاحة"
+              type="number"
+              placeholder="200"
+              value={stock}
+              onChange={(e) => setStock(e.target.value)}
             />
 
             <MultiSelect
