@@ -58,10 +58,8 @@ export const useCreateProduct = () => {
           }))
         },
         cost: data.costPrice,
-        stock: {
-          qty: data.stock,
-          policy: data.stockPolicy
-        },
+        stock: data.stock,
+        stockPolicy: data.stockPolicy,
         categories: data.categories,
         images: uploadedImages.map(img => ({
           path: img.path,
@@ -120,12 +118,10 @@ export const useUpdateProduct = () => {
         }));
       }
       if (data.stock !== undefined) {
-        payload.stock = payload.stock || {};
-        payload.stock.qty = data.stock;
+        payload.stock = data.stock;
       }
       if (data.stockPolicy) {
-        payload.stock = payload.stock || {};
-        payload.stock.policy = data.stockPolicy;
+        payload.stockPolicy = data.stockPolicy;
       }
       if (data.categories) payload.categories = data.categories;
       if (uploadedImages) {
