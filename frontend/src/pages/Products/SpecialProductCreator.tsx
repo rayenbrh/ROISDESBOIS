@@ -113,7 +113,7 @@ const SpecialProductCreator: React.FC = () => {
         costPrice: 0,
         bulkPrices: [],
         stock: isNaN(stockValue) ? 0 : stockValue,
-        stockPolicy: 'track' as const,
+        stockPolicy: 'byProduct' as const,
         categories: selectedCategories,
         images: imageFiles,
         isSpecial: true,
