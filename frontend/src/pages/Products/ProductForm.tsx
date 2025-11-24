@@ -181,7 +181,7 @@ const ProductForm: React.FC = () => {
               error={errors.retailPrice?.message}
               {...register('retailPrice', {
                 required: 'سعر البيع مطلوب',
-                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || isNaN(v)) ? 0 : parseFloat(v),
                 min: { value: 0, message: 'السعر يجب أن يكون 0 أو أكثر' }
               })}
             />
@@ -192,7 +192,7 @@ const ProductForm: React.FC = () => {
               step="0.01"
               error={errors.costPrice?.message}
               {...register('costPrice', {
-                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || isNaN(v)) ? 0 : parseFloat(v),
                 min: { value: 0, message: 'السعر يجب أن يكون 0 أو أكثر' }
               })}
             />
@@ -254,7 +254,7 @@ const ProductForm: React.FC = () => {
               type="number"
               error={errors.stock?.message}
               {...register('stock', {
-                valueAsNumber: true,
+                setValueAs: (v) => (v === '' || isNaN(v)) ? 0 : parseInt(v),
                 min: { value: 0, message: 'الكمية يجب أن تكون 0 أو أكثر' }
               })}
             />

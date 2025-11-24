@@ -102,14 +102,17 @@ const SpecialProductCreator: React.FC = () => {
       const uploadedImages = await uploadFiles(imageFiles, 'image');
 
       // Create product with combination metadata
+      const stockValue = stock.trim() === '' ? 0 : parseInt(stock);
+      const priceValue = retailPrice.trim() === '' ? 0 : parseFloat(retailPrice);
+
       const productData = {
         title,
         description,
         SKU: sku,
-        retailPrice: parseFloat(retailPrice) || 0,
+        retailPrice: isNaN(priceValue) ? 0 : priceValue,
         costPrice: 0,
         bulkPrices: [],
-        stock: parseInt(stock) || 0,
+        stock: isNaN(stockValue) ? 0 : stockValue,
         stockPolicy: 'track' as const,
         categories: selectedCategories,
         images: imageFiles,
