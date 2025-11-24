@@ -60,7 +60,7 @@ export interface Product {
   costPrice: number;
   bulkPrices: BulkPrice[];
   stock: number;
-  stockPolicy: 'track' | 'unlimited' | 'backorder';
+  stockPolicy: 'byProduct' | 'byVariant' | 'byComponent';
   categories: string[] | Category[];
   images: string[];
   isSpecial: boolean;
@@ -253,7 +253,7 @@ export interface ProductFormData {
   costPrice: number;
   bulkPrices: BulkPrice[];
   stock: number;
-  stockPolicy: 'track' | 'unlimited' | 'backorder';
+  stockPolicy: 'byProduct' | 'byVariant' | 'byComponent';
   categories: string[];
   images: File[];
   isSpecial: boolean;
