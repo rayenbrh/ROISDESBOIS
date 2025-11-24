@@ -84,7 +84,10 @@ const ProductForm: React.FC = () => {
           isActive: product.isActive !== undefined ? product.isActive : true,
         }
       : {
+          retailPrice: 0,
+          costPrice: 0,
           bulkPrices: [],
+          stock: 0,
           stockPolicy: 'track',
           categories: [],
           images: [],
