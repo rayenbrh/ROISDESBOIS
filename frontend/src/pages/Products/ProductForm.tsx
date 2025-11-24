@@ -103,6 +103,13 @@ const ProductForm: React.FC = () => {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
+      console.log('ProductForm - Submitting data:', {
+        stock: data.stock,
+        stockPolicy: data.stockPolicy,
+        retailPrice: data.retailPrice,
+        fullData: data
+      });
+
       if (isEdit && id) {
         await updateMutation.mutateAsync({ id, data });
         toast.success('تم تحديث المنتج بنجاح');
